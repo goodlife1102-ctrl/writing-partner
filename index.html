@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>스피치라이터의 5분 완성 글쓰기 파트너</title>
+<style>
+:root{color-scheme:light;--bg:#fff;--panel:#f7f6f3;--line:#e3e0da;--ink:#1f1e1c;--sub:#6b675f;
+  --accent:#c15f3c;--soft:#f5e9e3;--ok:#2f7d5c;--warn:#b8791f;--err:#b23b3b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-size:14px;line-height:1.6}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 18px 60px}
+h1{font-size:19px;margin:0 0 14px;letter-spacing:-.4px}
+h1 small{font-size:12.5px;color:var(--sub);font-weight:400;margin-left:6px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:9px 13px;border:none;background:none;cursor:pointer;font-size:13.5px;color:var(--sub);
+  border-bottom:2px solid transparent;font-family:inherit}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.page{display:none}.page.on{display:block}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:720px){.grid,.grid3{grid-template-columns:1fr}}
+.field{margin-bottom:14px}
+label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+label .hint{font-weight:400;color:var(--sub);margin-left:5px;font-size:11.5px}
+input[type=text],input[type=number],input[type=date],input[type=time],textarea,select{
+  width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;
+  font-family:inherit;font-size:13.5px;color:var(--ink)}
+textarea{resize:vertical;min-height:70px;line-height:1.55}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 11px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;
+  font-size:12.5px;user-select:none;font-family:inherit;color:var(--ink)}
+.chip.on{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.chip.sm{padding:5px 9px;font-size:12px}
+.card{border:1px solid var(--line);border-radius:11px;padding:16px;background:var(--panel);margin-bottom:14px}
+.card.plain{background:#fff}
+.card h2{font-size:14px;margin:0 0 4px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.card .desc{font-size:12.5px;color:var(--sub);margin:0 0 14px}
+.btn{padding:10px 18px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;
+  cursor:pointer;font-size:13.5px;font-weight:600;font-family:inherit}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{background:#fff;color:var(--accent)}
+.btn.sm{padding:6px 12px;font-size:12px}
+.btn.grey{background:#fff;color:var(--sub);border-color:var(--line)}
+.btn.big{padding:13px 26px;font-size:15px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.out{white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:9px;padding:16px;
+  font-size:14px;line-height:1.85;min-height:90px;max-height:480px;overflow:auto}
+.count{font-size:12px;color:var(--sub);font-weight:400}
+.count b{color:var(--accent)}
+.status{font-size:12.5px;color:var(--sub);min-height:18px}
+.status.err{color:var(--err)}.status.ok{color:var(--ok)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;background:#fff}
+th{background:var(--panel);font-weight:600}
+.note{font-size:12.5px;color:var(--sub);background:#fff;border-left:3px solid var(--accent);
+  padding:10px 12px;border-radius:0 7px 7px 0;margin-top:10px}
+.hidden{display:none!important}
+.steps{display:flex;margin-bottom:16px}
+.stp{flex:1;text-align:center;padding:9px 4px;font-size:12.5px;color:var(--sub);
+  border-bottom:3px solid var(--line);cursor:pointer}
+.stp.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.stp.done{color:var(--ok);border-bottom-color:var(--ok)}
+.stp b{display:block;font-size:11px;font-weight:400;opacity:.75}
+.wstep{display:none}.wstep.on{display:block}
+.sub{font-size:12.5px;color:var(--sub);margin:6px 0 0}
+.ck{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+.ck span:last-child{white-space:nowrap;font-weight:600;font-size:12px}
+.grp{font-size:11.5px;font-weight:700;color:var(--accent);margin:14px 0 2px;letter-spacing:.3px}
+.mini{width:78px!important;display:inline-block}
+.tune{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--sub);margin-bottom:10px}
+.util{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}
+.dim{opacity:.55}
+.pbar{height:7px;background:var(--line);border-radius:99px;overflow:hidden;margin:2px 0 5px}
+.pbar i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .25s}
+.out b{background:#fdf0e9;font-weight:600;box-shadow:0 1px 0 var(--accent)}
+.hintline{font-size:12px;color:var(--sub);margin:6px 0 0}
+.btn.okflash{background:var(--ok)!important;border-color:var(--ok)!important;color:#fff!important}
+.steps2{background:#fff;border:2px solid var(--accent);border-radius:10px;padding:14px 16px;margin-top:12px}
+.steps2 h3{margin:0 0 8px;font-size:13.5px;color:var(--accent)}
+.steps2 ol{margin:0;padding-left:20px;font-size:13px;line-height:1.9}
+.kbd{display:inline-block;padding:1px 7px;border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:5px;background:var(--panel);font-size:12px;font-family:ui-monospace,monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small></h1>
+
+<div class="tabs">
+  <button class="tab on" data-p="p1">① 쓰기</button>
+  <button class="tab" data-p="p2">② 초안</button>
+  <button class="tab" data-p="p3">③ 매체별 원고</button>
+  <button class="tab" data-p="p4">④ 발행</button>
+  <button class="tab" data-p="p5">⑤ 발행일지</button>
+</div>
+
+<!-- ① 쓰기 -->
+<div class="page on" id="p1">
+  <div class="card hidden" id="keyCard">
+    <div class="row spread">
+      <h2 style="margin:0">시작하기 전에 — API 키 한 번만 넣기</h2>
+      <span class="count" id="keyState"></span>
+    </div>
+    <p class="desc" style="margin:6px 0 12px">이 사이트는 글을 만들 때 Claude를 부릅니다. 그 요금은 각자의 키로 청구되므로 본인 키가 필요합니다.
+    키는 <b>이 브라우저에만</b> 저장되고 어디로도 전송되지 않습니다.</p>
+    <div class="row">
+      <input type="password" id="f_key" placeholder="sk-ant-..." style="flex:1;min-width:220px">
+      <button class="btn sm" id="btnKeySave">저장</button>
+      <button class="btn ghost sm" id="btnKeyTest">연결 확인</button>
+      <button class="btn grey sm" id="btnKeyClear">지우기</button>
+    </div>
+    <div class="status" id="stKey" style="margin-top:8px"></div>
+    <p class="hintline">키가 없으시면 console.anthropic.com 에서 계정을 만들고 API Keys 메뉴에서 발급받으세요. 글 한 편에 수십 원 수준입니다.</p>
+  </div>
+  <div class="steps">
+    <div class="stp on" data-s="0">1. 왜<b>배경·목적</b></div>
+    <div class="stp" data-s="1">2. 무엇을<b>주제·자료</b></div>
+    <div class="stp" data-s="2">3. 어떻게<b>구성·문체</b></div>
+    <div class="stp" data-s="3">4. 누구에게<b>독자</b></div>
+  </div>
+
+  <div class="wstep on" data-s="0">
+    <div class="card">
+      <div class="row spread" style="margin-bottom:4px">
+        <h2 style="margin:0">왜 쓰는가</h2>
+        <button class="btn grey sm" id="btnLoad" title="마지막에 저장한 설정을 되돌립니다. 따로 저장하지 않았어도 직전 작업 내용이 자동으로 보관됩니다.">기존 설정 불러오기</button>
+      </div>
+      <p class="desc">쓰는 이유를 분명히 하면 글의 방향과 시점이 뚜렷해집니다.</p>
+      <div class="field"><label>배경 <span class="hint">왜 지금 이 글을 쓰게 됐는가</span></label>
+        <input type="text" id="f_bg" placeholder="예: 팀원들이 AI 초안을 그대로 올려 반려당하는 일이 반복된다"></div>
+      <div class="field"><label>목적 <span class="hint">읽고 나서 무엇이 달라지길 바라는가</span></label>
+        <input type="text" id="f_goal" placeholder="예: AI가 대신 써준다는 기대를 버리고 스스로 초안을 잡게 한다"></div>
+      <div class="field"><label>글의 쓰임새</label>
+        <div class="chips" id="purposeChips">
+          <button class="chip on" data-v="persuade">설득</button>
+          <button class="chip" data-v="inform">정보 전달</button>
+          <button class="chip" data-v="empathy">공감</button>
+          <button class="chip" data-v="record">기록</button>
+          <button class="chip" data-v="promote">알리기</button>
+        </div>
+        <p class="sub" id="purposeTip"></p></div>
+    </div>
+    <div class="row spread"><span></span><button class="btn" data-go="1">다음 →</button></div>
+  </div>
+
+  <div class="wstep" data-s="1">
+    <div class="card">
+      <h2>무엇을 쓰는가</h2>
+      <p class="desc">무엇에 대해 쓰는지(소재)와 어떤 글로 쓰는지(유형)를 따로 고릅니다.</p>
+      <div class="field"><label>소재 <span class="hint">무엇에 대해 쓰는가</span></label>
+        <div class="chips" id="subjChips">
+          <button class="chip on" data-v="writing">글쓰기·AI 활용</button>
+          <button class="chip" data-v="work">직업·일상</button>
+          <button class="chip" data-v="issue">시사·이슈</button>
+          <button class="chip" data-v="biz">경제·경영</button>
+          <button class="chip" data-v="culture">문화·예술</button>
+          <button class="chip" data-v="health">건강·라이프</button>
+          <button class="chip" data-v="edu">교육·자녀</button>
+          <button class="chip" data-v="travel">여행·취미</button>
+          <button class="chip" data-v="etc">기타</button>
+        </div><p class="sub" id="subjTip"></p></div>
+      <div class="field"><label>유형 <span class="hint">어떤 글로 쓰는가</span></label>
+        <div class="chips" id="genreChips">
+          <button class="chip on" data-v="column">칼럼</button>
+          <button class="chip" data-v="review">리뷰</button>
+          <button class="chip" data-v="essay">에세이</button>
+          <button class="chip" data-v="report">리포트</button>
+          <button class="chip" data-v="press">보도자료</button>
+        </div><p class="sub" id="genreTip"></p></div>
+      <div class="field"><label>주제 <span class="hint">문장 혹은 개조식으로 완성해 주세요</span></label>
+        <input type="text" id="f_topic" placeholder="예: AI 시대에 소설을 더 많이 읽어야 하는 이유"></div>
+      <div class="field">
+        <label>참고자료 / 최신 뉴스 <span class="hint">셋 중 아무거나, 여러 개 함께 써도 됩니다</span></label>
+        <div class="chips" id="refTabs" style="margin-bottom:8px">
+          <button class="chip sm on" data-v="text">텍스트 붙여넣기</button>
+          <button class="chip sm" data-v="link">링크 붙여넣기</button>
+          <button class="chip sm" data-v="file">자료 첨부하기</button>
+        </div>
+        <div id="refPane_text">
+          <textarea id="f_ref" style="min-height:110px" placeholder="겪은 일, 기사 본문, 수치, 인용문을 그대로 붙여넣으세요. 여기가 비면 글이 뻔해집니다."></textarea>
+        </div>
+        <div id="refPane_link" class="hidden">
+          <textarea id="f_links" style="min-height:90px" placeholder="한 줄에 하나씩 넣으세요.&#10;https://www.mcst.go.kr/...&#10;https://n.news.naver.com/..."></textarea>
+          <p class="sub">링크 안의 내용은 초안을 만든 뒤 대화창에서 열어 확인합니다. 지금 단계에서는 어떤 자료를 참고할지 목록으로만 넘어갑니다.</p>
+        </div>
+        <div id="refPane_file" class="hidden">
+          <input type="file" id="f_files" multiple accept=".txt,.md,.csv,.json,.pdf,.docx,.hwp,.xlsx">
+          <div id="fileList" class="sub"></div>
+          <p class="sub">글자로 된 파일은 내용을 바로 읽어 씁니다. 그 밖의 파일은 이름만 넘기고 초안을 만든 뒤 대화창에서 열어 봅니다.</p>
+        </div>
+      </div>
+    </div>
+    <div class="row spread"><button class="btn grey" data-go="0">← 이전</button><button class="btn" data-go="2">다음 →</button></div>
+  </div>
+
+  <div class="wstep" data-s="2">
+    <div class="card">
+      <h2>어떻게 쓰는가</h2>
+      <p class="desc">전개와 마무리, 길이와 말투를 정합니다.</p>
+      <div class="grid">
+        <div class="field"><label>전개 방식</label><select id="f_style"></select><p class="sub" id="styleDesc"></p></div>
+        <div class="field"><label>마무리 방식</label><select id="f_conc"></select><p class="sub" id="concDesc"></p></div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>분량 <span class="hint"><span id="lenLabel">1400</span>자</span></label>
+          <input type="range" id="f_len" min="500" max="3000" step="100" value="1400" style="width:100%"></div>
+        <div class="field"><label>문장 끝맺음</label>
+          <div class="chips" id="endChips">
+            <button class="chip on" data-v="polite">~입니다 / ~요</button>
+            <button class="chip" data-v="plain">~다</button>
+            <button class="chip" data-v="noun">~임</button>
+          </div></div>
+      </div>
+      <div class="field"><label>구성 요소</label>
+        <div class="chips" id="partChips">
+          <button class="chip" data-v="subhead">중간제목 넣기</button>
+          <button class="chip" data-v="table">표 넣기</button>
+          <button class="chip" data-v="number">이유·방법을 번호로 나누기</button>
+        </div></div>
+      <div class="field"><label>톤앤매너</label>
+        <div class="chips" id="toneChips">
+          <button class="chip on" data-v="가벼운 유머를 1~2회 넣되 과하지 않게">가벼운 유머</button>
+          <button class="chip on" data-v="관념을 감각으로 옮기는 비유를 1개 이상 사용">비유 사용</button>
+          <button class="chip on" data-v="반문형 문장을 2~3회 넣어 리듬을 만든다">반문형 리듬</button>
+          <button class="chip" data-v="수치·연도·고유명사를 최소 2건 명시">수치 강조</button>
+          <button class="chip" data-v="1인칭 경험을 구체적 장면으로 삽입">1인칭 경험</button>
+          <button class="chip" data-v="문장을 짧게 끊어 속도감을 준다">짧은 문장</button>
+        </div></div>
+      <div class="field"><label>추가 기준 <span class="hint">켠 기준만 집필과 점검에 적용됩니다</span></label>
+        <div class="chips" id="extraChips">
+          <button class="chip" data-v="aeo">AEO — AI 검색에 인용되게</button>
+          <button class="chip" data-v="human">휴머나이즈 — AI 티 지우기</button>
+        </div></div>
+    </div>
+    <div class="row spread"><button class="btn grey" data-go="1">← 이전</button><button class="btn" data-go="3">다음 →</button></div>
+  </div>
+
+  <div class="wstep" data-s="3">
+    <div class="card">
+      <h2>누구에게 보내는가</h2>
+      <p class="desc">독자를 좁힐수록 문장이 선명해집니다. 모두에게 쓴 글은 결국 아무에게도 닿지 않습니다. 같은 주제라도 독자가 달라지면 예시와 설명의 깊이가 완전히 달라집니다.</p>
+      <div class="field"><label>대상 독자</label>
+        <div class="chips" id="readerChips">
+          <button class="chip on" data-v="all">누구나</button>
+          <button class="chip" data-v="peer">업계 동료·실무자</button>
+          <button class="chip" data-v="exec">CEO·경영진</button>
+          <button class="chip" data-v="press">기자</button>
+          <button class="chip" data-v="junior">사회 초년생·학생</button>
+          <button class="chip" data-v="__custom__">직접 입력</button>
+        </div><p class="sub" id="readerTip"></p>
+        <input type="text" id="f_reader_c" class="hidden" style="margin-top:8px" placeholder="어떤 사람이 읽나요?"></div>
+      <div class="field"><label>이 독자가 이미 알고 있는 것 <span class="hint">비워도 됩니다. 적으면 설명을 건너뜁니다</span></label>
+        <input type="text" id="f_known" placeholder="예: AI로 초안 쓰는 방법은 대충 안다"></div>
+    </div>
+    <div class="row spread">
+      <button class="btn grey" data-go="2">← 이전</button>
+      <div class="row">
+        <button class="btn ghost" id="btnSave">지금 설정 저장</button>
+        <button class="btn big" id="btnGo">초안 만들기 →</button>
+      </div>
+    </div>
+    <div class="status" id="st1" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- ② 초안 -->
+<div class="page" id="p2">
+  <div class="card">
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn" id="btnRewriteOpen">다시 쓰기</button>
+      <button class="btn grey sm" id="btnEdit">직접 고치기</button>
+      <button class="btn grey sm" id="btnCopy2">복사</button>
+    </div>
+    <div id="rwBox" class="card plain hidden" style="margin-bottom:12px">
+      <h2>무엇을 바꿔 쓸까요</h2>
+      <p class="desc">비워두면 지금 설정 그대로 다시 씁니다.</p>
+      <div class="grid">
+        <div class="field"><label>분량 <span class="hint"><span id="rwLenLabel">1400</span>자</span></label>
+          <input type="range" id="rw_len" min="500" max="3000" step="100" value="1400" style="width:100%"></div>
+        <div class="field"><label>톤앤매너 손보기</label>
+          <input type="text" id="rw_tone" placeholder="예: 더 담담하게 / 유머를 빼고 / 문장을 더 짧게"></div>
+      </div>
+      <div class="field"><label>추가할 내용</label>
+        <textarea id="rw_add" style="min-height:70px" placeholder="넣고 싶은 사례, 수치, 문장을 적어 주세요."></textarea></div>
+      <div class="row">
+        <button class="btn" id="btnRewriteGo">이대로 다시 쓰기</button>
+        <button class="btn ghost sm" id="btnRewriteSame">그대로 다시 쓰기</button>
+        <button class="btn grey sm" id="btnRewriteClose">닫기</button>
+      </div>
+    </div>
+    <h2>본문 초안 <span class="count" id="cnt2"></span></h2>
+    <div id="prog2"></div>
+    <div class="out" id="draft" style="margin-top:8px" contenteditable="false">① 쓰기 탭에서 빈칸을 채운 뒤 초안 만들기를 누르세요.</div>
+    <div class="status" id="st2" style="margin-top:8px"></div>
+  </div>
+  <div class="card">
+    <div class="row spread" style="margin-bottom:8px">
+      <h2 style="margin:0">자가 점검 <span class="count" id="ckScore"></span></h2>
+      <div class="chips" id="ckFilter">
+        <button class="chip sm on" data-v="fail">해당 항목</button>
+        <button class="chip sm" data-v="all">전체</button>
+      </div>
+    </div>
+    <p class="desc">고른 전개·마무리 방식에 맞는 기준으로만 검사합니다.</p>
+    <div id="checks"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost sm" id="btnFix">보완 항목 고쳐쓰기</button>
+      <button class="btn grey sm" id="btnFixAeo">AEO 적용 추가 수정</button>
+      <button class="btn grey sm" id="btnFixHum">휴머나이즈 추가 수정</button>
+    </div>
+    <p class="hintline">위 세 가지는 자가 점검과 별개로, 지금 본문을 각 기준에 맞춰 다시 손보는 기능입니다. 고친 문장은 본문에 굵게 표시됩니다.</p>
+    <div id="prog2b"></div>
+    <div class="status" id="st2b" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- ③ 매체별 원고 -->
+<div class="page" id="p3">
+  <div class="card">
+    <h2>올릴 매체</h2>
+    <p class="desc">고른 매체마다 글자수와 해시태그 수를 따로 정할 수 있습니다.</p>
+    <div class="chips" id="platChips">
+      <button class="chip on" data-v="linkedin">링크드인</button>
+      <button class="chip on" data-v="brunch">브런치</button>
+      <button class="chip" data-v="facebook">페이스북</button>
+      <button class="chip" data-v="threads">쓰레드</button>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="btnGenAll">고른 매체 한번에 만들기</button></div>
+  </div>
+  <div id="platCards"></div>
+</div>
+
+<!-- ④ 발행 -->
+<div class="page" id="p4">
+  <div class="card">
+    <h2>발행하기</h2>
+    <p class="desc">고른 매체 전체에 한 번에 나갑니다. 발행하면 발행일지에 자동으로 기록됩니다.<br>
+    <b>크롬에서 해당 매체에 미리 로그인해 두세요.</b> 크롬에서만 동작합니다. 엣지, 사파리, 파이어폭스에서는 자동 발행이 되지 않습니다. 이 앱은 아이디와 비밀번호를 수집하지 않습니다.</p>
+    <div class="row" style="margin-bottom:12px" id="platEcho"></div>
+    <div class="row">
+      <button class="btn big" id="btnNow">바로 발행</button>
+      <button class="btn ghost big" id="btnLaterOpen">예약 발행</button>
+      <button class="btn grey" id="btnDraftOnly" title="각 매체의 글쓰기 창을 열어 본문만 넣어 둡니다. 게시 버튼은 누르지 않으므로 아무에게도 보이지 않습니다. 눈으로 확인한 뒤 직접 올리고 싶을 때 씁니다.">글만 채워두기</button>
+    </div>
+    <div class="status" id="st4" style="margin-top:10px"></div>
+    <div id="pubSteps"></div>
+
+    <div id="schedBox" class="card plain hidden" style="margin-top:14px">
+      <h2>언제 올릴까요</h2>
+      <div class="grid3">
+        <div class="field"><label>시작일</label><input type="date" id="s_from"></div>
+        <div class="field"><label>시각</label><input type="time" id="s_time" value="08:00"></div>
+        <div class="field"><label>반복</label>
+          <select id="s_rep">
+            <option value="once">이 날 한 번만</option>
+            <option value="weekly">매주</option>
+            <option value="biweekly">2주마다</option>
+            <option value="monthly">매월 같은 날</option>
+          </select></div>
+      </div>
+      <div class="field" id="dowWrap"><label>요일 <span class="hint">여러 개 고를 수 있습니다</span></label>
+        <div class="chips" id="dowChips">
+          <button class="chip" data-v="월">월</button><button class="chip" data-v="화">화</button>
+          <button class="chip" data-v="수">수</button><button class="chip on" data-v="목">목</button>
+          <button class="chip" data-v="금">금</button><button class="chip" data-v="토">토</button>
+          <button class="chip" data-v="일">일</button>
+        </div></div>
+      <div class="field"><label>종료 <span class="hint">비우면 계속</span></label><input type="date" id="s_until"></div>
+      <p class="sub" id="schedEcho"></p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="btnLater">이 일정으로 예약</button>
+        <button class="btn grey sm" id="btnLaterClose">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>어떻게 올라가나</h2>
+    <p class="desc" style="margin:0">로그인해 둔 크롬 창을 대신 조작해 본문을 채우고 게시 버튼까지 누릅니다. 내 PC에서는 네 매체 모두 자동으로 올라갑니다. 나중에 웹사이트로 옮기면 브런치만 손으로 올려야 합니다.</p>
+  </div>
+</div>
+
+<!-- ⑤ 발행일지 -->
+<div class="page" id="p5">
+  <div class="card">
+    <h2>다음에 무엇을 쓸까</h2>
+    <p class="desc">지금까지 올린 글을 훑어 다루지 않은 각도와 이어 쓸 만한 주제를 뽑아냅니다.</p>
+    <div class="row"><button class="btn" id="btnSuggest">다음 주제 제안받기</button></div>
+    <div class="out hidden" id="sugBox" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>지금까지 <span class="count" id="statLine"></span></h2>
+    <div id="statBox"></div>
+  </div>
+  <div class="card">
+    <div class="row spread" style="margin-bottom:10px">
+      <h2 style="margin:0">발행 내역 <span class="count" id="cntH"></span></h2>
+      <div class="chips" id="hFilter">
+        <button class="chip sm on" data-v="all">전체</button>
+        <button class="chip sm" data-v="링크드인">링크드인</button>
+        <button class="chip sm" data-v="브런치">브런치</button>
+        <button class="chip sm" data-v="페이스북">페이스북</button>
+        <button class="chip sm" data-v="쓰레드">쓰레드</button>
+      </div>
+    </div>
+    <div id="histBox"></div>
+    <div class="status" id="st5" style="margin-top:10px"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn ghost sm" id="btnXlsx">엑셀 파일 갱신</button>
+      <button class="btn grey sm" id="btnGsheet">구글 시트로 보내기</button>
+      <button class="btn grey sm" id="btnCsv">CSV 내려받기</button>
+      <button class="btn grey sm" id="btnWipe">전체 삭제</button>
+    </div>
+    <div class="note">발행 버튼을 누르면 이 목록에 자동으로 쌓이고, 복사된 지시문 안에 엑셀 기록 명령도 함께 들어갑니다. 대화창에 한 번 붙여넣으면 발행과 기록이 같이 처리됩니다. 손으로 입력할 일은 없습니다.</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const LS='writebot';
+/* 예전 버전에 저장된 내용 이어받기 */
+(function(){
+  const olds=['writebot_v5','writebot_v4','writebot_v3','colpilot_v2','colpilot_v1'];
+  let cur={};try{cur=JSON.parse(localStorage.getItem(LS)||'{}');}catch(e){}
+  olds.forEach(k=>{
+    let o={};try{o=JSON.parse(localStorage.getItem(k)||'{}');}catch(e){return;}
+    if(!cur.preset&&o.preset)cur.preset=o.preset;
+    if(!cur.auto&&o.auto)cur.auto=o.auto;
+    if(o.history&&o.history.length)cur.history=(cur.history||[]).concat(o.history);
+  });
+  if(cur.history&&cur.history.length){
+    const seen=new Set();
+    cur.history=cur.history.filter(r=>{const k=[r.date,r.media,r.title].join('|');
+      if(seen.has(k))return false;seen.add(k);return true;});
+  }
+  localStorage.setItem(LS,JSON.stringify(cur));
+})();
+const XLSX='C:\\Users\\14Z980\\Documents\\Obsidian-Wiki\\04_outputs\\02_writing\\칼럼_발행일지.xlsx';
+
+/* ================= 사전 ================= */
+const STYLE={
+ argue:{n:'주장형',t:'주장 하나를 세우고 근거 2~3개로 밀어붙입니다.',
+  r:'하나의 명확한 주장을 세우고 뒷받침하는 근거를 2~3개 순서대로 제시한다. 근거마다 사례나 수치를 하나씩 붙인다. 반대 의견을 한 번 짚고 반박한 뒤 주장을 다시 확인한다.',
+  c:[['주장이 한 문장으로 분명히 서 있는가',null],
+     ['근거가 2개 이상 구분되어 제시됐는가',t=>(t.match(/첫째|둘째|셋째|먼저|다음으로|게다가|또한/g)||[]).length>=2],
+     ['반대 의견을 한 번 짚었는가',t=>/(물론|다만|반론|반대로|그렇다고)/.test(t)],
+     ['근거마다 사례나 수치가 붙었는가',t=>(t.match(/\d/g)||[]).length>=4]]},
+ essay:{n:'경험형',t:'내가 겪은 일에서 출발해 깨달음으로 넘어갑니다.',
+  r:'내가 직접 겪은 장면을 1인칭으로 먼저 보여준다. 그때의 감정과 당혹감을 솔직하게 적는다. 중반에서 그 경험이 무엇을 뜻하는지 한 단계 끌어올려 일반화한다. 훈계하지 않고 고백하듯 쓴다.',
+  c:[['도입이 1인칭 경험 장면인가',t=>/^[\s\S]{0,200}(저는|제가|나는|내가)/.test(t)],
+     ['그때의 감정이 드러나 있는가',t=>/(당황|놀랐|부끄|막막|답답|서운|뭉클|아찔|허탈|먹먹|민망)/.test(t)],
+     ['경험이 일반화로 넘어갔는가',t=>/(결국|그러니까|돌이켜|알고 보니|지금은 알)/.test(t)],
+     ['훈계조로 흐르지 않았는가',t=>(t.match(/해야 합니다|해야 한다|명심/g)||[]).length<=2]]},
+ story:{n:'이야기형',t:'한 사람 또는 한 사건을 끝까지 따라갑니다.',
+  r:'한 인물 또는 한 사건을 주인공으로 삼아 시간 순으로 따라간다. 장면과 구체적 디테일을 살린다. 주장을 직접 말하지 말고 이야기가 끝나는 지점에서 독자가 스스로 깨닫게 한다.',
+  c:[['시간 흐름을 알리는 표현이 있는가',t=>/(그날|그때|이튿날|얼마 뒤|몇 달|처음엔|그러다|마침내)/.test(t)],
+     ['대사나 장면 묘사가 있는가',t=>/["“”]/.test(t)||/(라고 말했|하고 물었|고개를|손을|눈을)/.test(t)],
+     ['주장을 직접 늘어놓지 않았는가',t=>(t.match(/해야 합니다|중요합니다|필요합니다/g)||[]).length<=2],
+     ['마지막에만 뜻을 짚었는가',null]]},
+ flip:{n:'뒤집기형',t:'다들 맞다고 믿는 것을 흔듭니다.',
+  r:'널리 통용되는 상식이나 유행하는 주장을 먼저 정확히 요약한다. 그다음 정말 그런지 되묻는다. 반례와 데이터로 빈틈을 보여주고 마지막에 대체할 관점을 제시한다.',
+  c:[['통념을 먼저 요약했는가',t=>/(흔히|보통|다들|대개|알려져|통한다|말한다)/.test(t)],
+     ['뒤집는 신호가 있는가',t=>/(그런데|하지만|정말|과연|아니다|아닙니다)/.test(t)],
+     ['반례나 데이터를 제시했는가',t=>(t.match(/\d{2,}/g)||[]).length>=2],
+     ['조롱조가 되지 않았는가',t=>!/(어리석|한심|웃긴|멍청)/.test(t)]]},
+ howto:{n:'안내형',t:'문제를 짚고 방법과 순서를 알려줍니다.',
+  r:'독자가 겪는 문제 상황을 구체적으로 그린 뒤 해결 방법을 3단계 내외로 순서대로 안내한다. 각 단계마다 실제로 어떻게 하는지 예시를 하나씩 붙인다. 개조식 목록이 아니라 서술형 문장으로 이어 쓴다.',
+  c:[['문제 상황을 먼저 그렸는가',t=>/^[\s\S]{0,400}(문제|어렵|안 되|막히|헤매|고민)/.test(t)],
+     ['단계가 3개 내외로 나뉘는가',t=>{const n=(t.match(/첫째|둘째|셋째|넷째|1단계|2단계|3단계/g)||[]).length;return n>=2&&n<=5;}],
+     ['각 단계에 예시가 붙었는가',t=>(t.match(/예를 들|가령|이를테면|예컨대/g)||[]).length>=1],
+     ['목록 기호 없이 서술형인가',t=>!/(^|\n)\s*[-*+•]\s/.test(t)]]}
+};
+const CONC={
+ danon:{n:'단언형',t:'결론을 한 문장으로 못 박고 끝냅니다.',
+  r:'마지막 문단에서 글 전체의 결론을 한 문장으로 압축해 단호하게 못 박는다. 여지를 남기거나 화해하듯 봉합하지 않는다.',
+  c:t=>[['마지막이 단정으로 닫히는가',!/[?？]\s*$/.test(last(t))&&!/(아닐까|같습니다\.$|듯합니다\.$)/.test(last(t))]]},
+ open:{n:'열린결말형',t:'답 대신 질문을 독자에게 넘깁니다.',
+  r:'결론을 직접 말하는 대신 글 전체가 향해 온 질문을 독자에게 되돌려 던지며 끝낸다. 질문은 하나만 남긴다.',
+  c:t=>[['마지막이 질문으로 닫히는가',/[?？]\s*$/.test(last(t))],
+        ['마지막 문단의 질문이 하나뿐인가',(lastPara(t).match(/[?？]/g)||[]).length===1]]},
+ redef:{n:'재정의형',t:'"A가 아니라 B다"로 뜻을 다시 세웁니다.',
+  r:'글에서 다룬 핵심 개념을 A가 아니라 B다 구조로 다시 정의하며 끝낸다. 새 정의는 앞 본문이 이미 증명한 것이어야 한다.',
+  c:t=>[['마지막에 재정의 구조가 있는가',/(아니라|아니고|가 아닙니다)/.test(lastPara(t))]]},
+ circle:{n:'수미쌍관형',t:'도입 장면을 끝에서 다시 불러 닫습니다.',
+  r:'도입부에 등장한 인물이나 장면을 마지막 문단에서 다시 불러온다. 다만 처음과는 달라진 의미로 되돌아와야 한다.',
+  c:t=>[['도입의 소재가 마지막에 다시 나오는가',overlap(t)>=2]]},
+ action:{n:'실행제안형',t:'당장 해볼 행동 하나를 남깁니다.',
+  r:'독자가 오늘이나 내일 바로 실행할 수 있는 구체적 행동 한 가지를 제안하며 끝낸다. 추상적 다짐이 아니라 손에 잡히는 행동이어야 한다.',
+  c:t=>[['마지막에 행동 제안이 있는가',/(해 보|해보|시작해|열어|적어|물어|골라|꺼내|덮고)/.test(lastPara(t))],
+        ['추상적 다짐이 아닌 구체적 행동인가',!/(노력해|명심|잊지 말)/.test(lastPara(t))]]}
+};
+const SUBJ={
+ writing:{n:'글쓰기·AI 활용',t:'글쓰기와 AI, 일하는 방법을 다룹니다.',
+  g:'독자는 읽고 나서 당장 써먹을 것을 기대한다. 방법을 아끼지 말고 구체적으로 풀되, 실패담을 하나 넣어야 설교로 읽히지 않는다. 도구 이름 나열로 끝내지 않는다.'},
+ work:{n:'직업·일상',t:'직장 생활과 일상에서 겪은 일을 다룹니다.',
+  g:'공감이 먼저다. 회사 안의 구체적 장면과 대사가 살아 있어야 한다. 교훈을 서둘러 붙이면 힘이 빠진다. 특정인을 알아볼 수 있게 쓰지 않는다.'},
+ issue:{n:'시사·이슈',t:'사회 현안과 뉴스를 해석합니다.',
+  g:'사실 확인이 생명이다. 수치와 날짜와 출처를 명시한다. 반대편의 가장 강한 논거를 먼저 공정하게 요약한 뒤 반박해야 설득력이 생긴다. 진영 논리로 읽히지 않게 한다.'},
+ biz:{n:'경제·경영',t:'산업 흐름과 조직 운영을 다룹니다.',
+  g:'추상적 트렌드 나열을 피하고 구체적 기업과 숫자로 말한다. 예측을 단정하지 말고 근거의 한계를 밝힌다. 투자 권유로 읽힐 표현을 쓰지 않는다.'},
+ culture:{n:'문화·예술',t:'책, 영화, 공연, 전시를 다룹니다.',
+  g:'작품 정보 요약에 지면을 쓰지 않는다. 내가 어디서 멈췄고 무엇에 걸렸는지가 핵심이다. 결정적 반전은 밝히지 않는다.'},
+ health:{n:'건강·라이프',t:'몸과 마음, 생활 습관을 다룹니다.',
+  g:'의학적 단정을 피하고 개인 경험임을 분명히 한다. 검증되지 않은 효과를 주장하지 않는다. 특정 제품을 권하지 않는다.'},
+ edu:{n:'교육·자녀',t:'배움과 아이 키우기를 다룹니다.',
+  g:'내 방식이 정답인 것처럼 쓰지 않는다. 아이의 사생활을 노출하지 않는다. 불안을 자극해 설득하지 않는다.'},
+ travel:{n:'여행·취미',t:'다녀온 곳과 좋아하는 것을 다룹니다.',
+  g:'정보 나열이 아니라 그곳에서만 겪은 장면을 남긴다. 홍보성 문구를 쓰지 않는다. 감탄사로 감동을 대신하지 않는다.'},
+ etc:{n:'기타',t:'위에 없는 소재를 다룹니다.',
+  g:'특별한 소재 규칙 없이 일반 글쓰기 원칙만 따른다.'}
+};
+const GENRE={
+ column:{n:'칼럼',t:'내 판단을 근거와 함께 내놓는 글.',
+  g:`[칼럼 규칙]
+SPARK 5단으로 짠다. 소재 제시 → 나만의 시선 → 근거와 데이터 → 사적 경험과의 접붙임 → 판단을 고정하는 마무리.
+판단을 회피하면 실패한다. 애매한 화해로 끝내지 않는다.
+반문형 문장으로 리듬을 만들되 남발하지 않는다.
+사적 경험과 공적 소재를 교차시킨다.`},
+ review:{n:'리뷰',t:'직접 겪은 것을 평하는 글.',
+  g:`[리뷰 규칙]
+CARE+E 5단으로 짠다. 왜 궁금했는지 → 실제로 겪은 장면 → 기록한 디테일 → 판단으로 정리 → 나만의 표현으로 마무리.
+직접 겪은 감각이 핵심이다. 요약과 정보 나열은 최소화한다.
+광고 카피 어조와 추천 대상 비추 대상 같은 소비자 가이드 어조를 쓰지 않는다.
+좋다 나쁘다가 아니라 무엇이 새롭고 무엇이 낡았는지를 근거와 함께 짚는다.
+결정적 반전은 밝히지 않는다.`},
+ essay:{n:'에세이',t:'생각과 감정을 자유롭게 풀어내는 글.',
+  g:`[에세이 규칙]
+결론을 서두르지 않는다. 사소한 장면 하나를 오래 들여다본다.
+설명하려 들면 에세이가 아니게 된다. 감정을 이름 붙이지 말고 장면으로 보여준다.
+문장의 리듬과 여백으로 전달한다. 교훈을 마지막에 억지로 붙이지 않는다.
+1인칭 육성을 끝까지 유지한다.`},
+ report:{n:'리포트',t:'결재권자가 판단하도록 정리한 업무 문서.',
+  g:`[리포트 규칙]
+What-Why-How-So What 네 요소를 반드시 담는다. 무엇을 하는가, 왜 하는가, 어떻게 하는가, 그래서 무엇이 달라지는가.
+목차는 내가 일한 순서가 아니라 상사의 예상 질문 순서로 짠다.
+두괄식으로 결론을 맨 앞에 놓는다. 핵심은 한 장 안에 끝내고 나머지는 붙임으로 뺀다.
+정보제공인지 의견제시인지 의사결정 요청인지를 첫 줄에서 분명히 한다.
+수식어를 걷어내고 수치와 기한과 담당을 명시한다.`},
+ press:{n:'보도자료',t:'기자가 바로 옮겨 쓸 기사 초안.',
+  g:`[보도자료 규칙 — 다른 모든 문체 지시보다 우선한다]
+당신은 보도자료와 브랜드 스토리텔링, 위기관리 커뮤니케이션을 전문으로 하는 20년차 비즈니스 라이팅 전문가다. 주요 일간지와 경제지 협업 경험이 많고 뉴스가치를 발굴해 스토리로 구성하는 데 능하다.
+기자가 바로 복사해 붙일 수 있는 기사 초안을 쓴다. 논리적 연결, 가독성, 뉴스가치(공익성과 시의성)가 가장 중요하다.
+
+구조
+제목은 두 줄로 만든다. 첫 줄은 팩트 중심으로 주체와 핵심 사업과 행동을 20자 내외로 담는다. 둘째 줄은 의미 부여로 사회적 가치와 업계 영향과 전망을 25자 내외로 담는다.
+부제목은 제목과 겹치지 않게 현장감을 준다.
+리드 첫 문장은 육하원칙으로 전체를 요약하고 뉴스가치를 전달한다. 50자 내외로 최대한 간결하게 쓴다.
+본문은 역피라미드 구조로 쓴다. 중요한 것부터 내려간다. 행사나 사업의 세부 정보, 특징, 차별점, 추진 이유를 육하원칙에 맞춰 담는다.
+인용은 기관장이나 담당자 또는 참여자의 발언을 공익과 경영 측면에서 요약해 넣는다.
+본문에 담지 못한 표나 그림은 붙임으로 정리한다.
+
+문체
+개조식이 아니라 서술형으로, 기사에 바로 올릴 수 있는 완성된 문장으로 쓴다.
+모든 문장을 ~다로 끝낸다. 존댓말과 명사형 종결을 쓰지 않는다. 이 규칙은 앞의 문장 끝맺음 설정보다 우선한다.
+짧고 간결하게, 친숙한 일상 언어로 쓰고 중복을 없앤다.
+능동태를 쓰고 구체적 수치를 넣는다. 과장된 추상적 수식을 금지한다.
+담을 것은 가치와 정보와 증거이고, 버릴 것은 지루한 나열과 뒤섞인 메시지와 내부 시선이다.`}
+};
+const READER={
+ all:{n:'배경지식이 없는 일반 대중',t:'전문 용어는 반드시 풀어 씁니다.',
+  g:'전문 용어를 쓰면 그 자리에서 한 줄로 풀어 준다. 업계 사정을 안다고 가정하지 않는다. 예시는 일상에서 가져온다.'},
+ peer:{n:'같은 분야의 동료와 실무자',t:'기본 설명은 건너뛰고 현장 판단으로 들어갑니다.',
+  g:'기본 개념 설명을 건너뛰고 현장의 구체적 판단과 수치로 곧장 들어간다. 뻔한 원론을 반복하면 신뢰를 잃는다. 내가 직접 겪은 사례를 근거로 쓴다.'},
+ exec:{n:'CEO와 경영진',t:'결론과 판단 근거를 맨 앞에 놓습니다.',
+  g:'결론을 맨 앞에 놓는다. 과정이 아니라 판단 근거와 위험 요인, 그리고 무엇을 결정해야 하는지를 쓴다. 핵심은 세 문단 안에 끝낸다. 숫자 없는 주장을 쓰지 않는다. 실무 용어를 늘어놓지 말고 경영 언어로 바꾼다.'},
+ press:{n:'기사를 쓰는 기자',t:'그대로 인용할 수 있게, 뉴스가치를 앞세웁니다.',
+  g:'기자가 그대로 인용하거나 옮겨 쓸 수 있게 쓴다. 첫 문단에서 뉴스가치를 분명히 한다. 새로운가, 지금인가, 공익에 닿는가를 스스로 답해야 한다. 육하원칙을 빠짐없이 채우고 확인 가능한 사실과 출처, 담당자 코멘트를 넣는다. 홍보성 수식어와 내부 시선을 걷어낸다.'},
+ junior:{n:'사회 초년생과 학생',t:'용어를 풀고 예시를 넉넉히 붙입니다.',
+  g:'용어를 풀어 쓰고 예시를 넉넉히 붙인다. 훈계조를 피하고 실패해도 괜찮다는 여지를 남긴다. 회사 문화를 당연한 것으로 전제하지 않는다.'}
+};
+const ENDING={
+ polite:{n:'~입니다 / ~요',r:'종결어미는 ~입니다 ~합니다 ~해요 ~죠를 교차한다. 명령형 대신 청유형을 쓴다. 평어체와 섞지 않는다.'},
+ plain:{n:'~다',r:'종결어미는 ~다 ~이다 ~한다 평어체로 일관한다. 존댓말과 절대 섞지 않는다.'},
+ noun:{n:'~임',r:'종결어미는 ~임 ~함 ~것 ~음 명사형으로 끝낸다. 문장을 짧게 유지한다.'}
+};
+const PURPOSE={
+ persuade:{n:'설득',t:'내 주장에 동의하게 만듭니다. 근거와 반박이 있어야 힘이 붙습니다.'},
+ inform:{n:'정보 전달',t:'모르던 것을 알려줍니다. 정확성과 순서가 가장 중요합니다.'},
+ empathy:{n:'공감',t:'나도 그렇다는 마음을 얻습니다. 주장보다 장면과 감정이 앞섭니다.'},
+ record:{n:'기록',t:'겪은 일을 남깁니다. 잘 쓰려 하기보다 사실과 감각을 정확히 적습니다.'},
+ promote:{n:'알리기',t:'사람이나 활동을 알립니다. 자랑처럼 들리지 않게 남의 이야기로 풀어야 합니다.'}};
+const AEO_RULE=`[AEO]
+첫 문단 안에 주제 질문에 대한 즉답을 넣는다.
+수치, 연도, 고유명사를 최소 3건 명시하고 출처를 밝힌다.
+앞뒤 문맥 없이 잘라내도 뜻이 통하는 독립 문장을 3개 이상 심는다.
+제목을 질문형으로 만든다.`;
+const CRAFT=`[글쓰기 원칙 — 모든 글에 적용]
+절대원칙은 짧게, 쉽게, 정확하게다. 그리고 AI가 쓰게 두는 승객이 아니라 방향을 정하는 조종사로 쓴다.
+
+설계 다섯 가지를 먼저 정하고 시작한다. 어느 편에 서는가, 누가 읽는가, 무엇을 이루려는가, 어떤 제약을 지키는가, 한 문장으로 줄이면 무엇인가. 이 다섯째가 야마이고 글 전체는 이 한 문장을 증명하는 과정이다.
+
+첫 문장이 전부다. 영화 로그라인처럼 한 줄로 전체를 붙잡아 세운다. 결론을 뒤에 숨기지 말고 앞에 놓는다.
+주장에는 근거를, 근거에는 사례를 붙이고 마지막에 주장을 다시 확인한다.
+왜 하는가에서 시작해 어떻게로 넘어가고 무엇을로 끝낸다. 무엇을부터 시작하면 설득되지 않는다.
+
+같은 메시지를 표현만 바꿔 두세 번 반복한다. 한 번 말한 것은 전달되지 않는다.
+많이 담을수록 아무것도 남지 않는다. 하나를 남기려면 나머지를 버려야 한다.
+추상적 훈계 대신 구체적 장면으로 보여준다. 성실해야 한다가 아니라 성실한 사람이 무엇을 하는지를 쓴다.
+관념은 감각으로 옮긴다. 설명하지 말고 이미지로 느끼게 한다.
+통념을 한 번은 뒤집는다. 예상대로 흘러가는 글을 독자는 뻔하다고 부르며 덮는다.
+문단 끝은 짧은 단문으로 끊어 여운을 남긴다. 긴 문장 뒤에 아주 짧은 문장을 붙여 리듬을 만든다.
+
+피해야 할 세 가지 함정이 있다. 사실이 틀린 문장, 근거 없이 이어 붙인 논리 비약, 누가 썼는지 알 수 없는 무개성이다.
+겉만 그럴듯한 포장지 문서, 맞는 말이지만 쓸모없는 문장, 출처 없는 유령 데이터를 쓰지 않는다.
+수식어를 걷어내고 동사로 말한다. 형용사를 세 개 붙일 자리에 정확한 명사 하나를 놓는다.
+어려운 말로 쓰면 어려운 생각처럼 보이지만 실은 정리되지 않은 생각이다.
+쓰고 나서 소리 내어 읽는다. 숨이 차는 문장은 자른다.`;
+const HUM_RULE=`[휴머나이즈]
+번역투를 쓰지 않는다. ~에 대한, ~을 통해, ~에 있어서, ~라고 할 수 있다, ~인 것으로 보인다를 피한다.
+접속사로 문장을 시작하는 횟수를 전체 문장의 10% 아래로 유지한다.
+문장 길이를 일부러 들쭉날쭉하게 만든다. 긴 문장 뒤에 아주 짧은 문장을 붙인다.
+상투어를 쓰지 않는다. 시사하는 바가 크다, 아무리 강조해도 지나치지 않다를 피한다.
+형식명사 것, 수, 등의 반복을 줄인다.`;
+const PLAT={
+ linkedin:{n:'링크드인',len:500,tag:3,d:'온라인으로 아는 동종업계 사람들에게. 직업적 전문성이 드러나야 합니다.',
+  s:(L,T)=>`링크드인 게시물로 다시 쓰십시오.
+읽는 사람은 온라인으로 알고 지내는 같은 업계 사람들입니다. 이 글은 나의 직업적 전문성을 보여주는 자리입니다.
+현장에서 직접 겪었거나 직접 판단한 대목을 앞으로 끌어냅니다. 남의 이야기가 아니라 내 일의 이야기여야 합니다.
+첫 두 줄 안에 결론을 넣습니다. 더 보기 전에 잘리기 때문입니다.
+문단은 한두 문장으로 짧게 끊고 사이를 한 줄 띄웁니다.
+공백 포함 ${L}자 내외로 압축합니다. 곁가지는 버리고 가장 강한 한 가지만 남깁니다.
+마지막에 동료들에게 던지는 질문 한 줄, 그다음 줄에 해시태그 ${T}개를 붙입니다.
+자기 자랑처럼 들리지 않게 하고 이모지와 마크다운 기호를 쓰지 않습니다.`},
+ brunch:{n:'브런치',len:1500,tag:0,d:'나를 모르는 불특정 독자에게. 네 매체 중 완성도가 가장 높아야 합니다.',
+  s:(L,T)=>`브런치 글로 다시 쓰십시오.
+읽는 사람은 나를 전혀 모르는 불특정 독자입니다. 완성도가 가장 높아야 하는 원고입니다.
+제목 한 줄과 부제 한 줄을 만듭니다. 제목은 질문형이나 역설형으로 하되 낚시성 표현은 쓰지 않습니다.
+소제목 두세 개로 본문을 나눕니다. 소제목은 기호 없이 문장형으로 씁니다.
+독자가 나에 대해 아무것도 모른다고 가정하고 배경 설명과 사례를 충분히 붙입니다.
+문장을 다듬어 리듬을 만들고 마지막 문단에 여운을 남깁니다.
+이미지를 넣으면 좋을 지점 두 곳을 대괄호 안에 이미지라고 표시합니다.
+공백 포함 ${L}자 내외로 쓰고${T?` 마지막에 해시태그 ${T}개를 붙입니다.`:' 해시태그는 붙이지 않습니다.'} 마크다운 기호는 쓰지 않습니다.`},
+ facebook:{n:'페이스북',len:500,tag:2,d:'얼굴 아는 지인들에게. 가장 친근하고 사적으로.',
+  s:(L,T)=>`페이스북 게시물로 다시 쓰십시오.
+읽는 사람은 얼굴을 아는 지인들입니다. 가장 친근하고 사적이어야 합니다.
+말을 거는 듯한 어조로 씁니다. 강의하거나 훈계하지 않습니다.
+첫 문장 하나로 스크롤을 멈춰 세웁니다. 짧은 장면이나 혼잣말로 엽니다.
+문단은 두세 문장씩 사이를 한 줄 띄웁니다.
+어려운 용어와 통계는 덜어내고 그날의 기분과 사소한 디테일을 남깁니다.
+공백 포함 ${L}자 내외로 줄입니다.
+마지막은 댓글을 부르는 한마디로 닫습니다. 해시태그 ${T}개를 붙이고 이모지와 마크다운 기호는 쓰지 않습니다.`},
+ threads:{n:'쓰레드',len:250,tag:1,d:'가장 짧고 가장 친근하게. 반말로, 촌철살인 한 방.',
+  s:(L,T)=>`쓰레드 게시물로 다시 쓰십시오.
+반말로 씁니다. 존댓말을 쓰지 않습니다. 혼잣말하듯 툭 던지는 어조입니다.
+네 매체 중 가장 짧고 가장 친근합니다. 공백 포함 ${L}자 내외로 줄입니다.
+원문에서 가장 뾰족한 한 가지만 남기고 나머지는 다 버립니다. 촌철살인이어야 합니다.
+설명하지 말고 단언합니다. 근거를 늘어놓지 말고 결론만 던집니다.
+첫 문장이 전부입니다. 그 한 줄로 승부합니다.
+문단은 한두 줄씩만 끊고 사이를 한 줄 띄웁니다.
+${T?`해시태그 ${T}개를 붙입니다.`:'해시태그를 붙이지 않습니다.'} 이모지와 마크다운 기호를 쓰지 않습니다.`}
+};
+
+/* ================= 유틸 ================= */
+const alen=s=>s.length, clen=s=>s.replace(/\s/g,'').length;
+const paras=t=>t.trim().split(/\n{2,}/).filter(p=>p.trim());
+const lastPara=t=>{const p=paras(t);return p.length?p[p.length-1]:'';};
+const last=t=>{const s=lastPara(t).trim().split(/(?<=[.!?？])\s+/);return s.length?s[s.length-1]:'';};
+function overlap(t){
+  let p=paras(t); if(p.length<3)return 0;
+  if(p[0].length<45&&p.length>3)p=p.slice(1);
+  const w=s=>new Set((s.match(/[가-힣]{2,}/g)||[]));
+  const a=w(p[0]),b=w(p[p.length-1]); let n=0; a.forEach(x=>{if(b.has(x))n++;}); return n;
+}
+function flash(btn){
+  if(!btn)return;
+  const t=btn.textContent,w=btn.offsetWidth;
+  btn.style.minWidth=w+'px';
+  btn.textContent='복사됨 ✓';btn.classList.add('okflash');
+  setTimeout(()=>{btn.textContent=t;btn.classList.remove('okflash');btn.style.minWidth='';},1800);
+}
+async function copy(t,el,msg,btn){
+  try{await navigator.clipboard.writeText(t);}
+  catch(e){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();}
+  flash(btn);
+  if(el){el.textContent=msg||'복사했습니다. 대화창에 붙여넣으세요.';el.className='status ok';
+    setTimeout(()=>{el.textContent='';el.className='status';},6000);}
+}
+const setCount=(e,t)=>e.innerHTML=`공백포함 <b>${alen(t)}</b>자 · 공백제외 ${clen(t)}자`;
+const txtOf=r=>(typeof r==='string')?r:(r&&(r.text||r.content||JSON.stringify(r)))||'';
+const inCowork=()=>!!(window.cowork&&window.cowork.askClaude);
+const KEYSTORE='writebot_key';
+const apiKey=()=>localStorage.getItem(KEYSTORE)||'';
+const hasAI=()=>inCowork()||!!apiKey();
+async function callAI(prompt){
+  if(inCowork())return txtOf(await window.cowork.askClaude(prompt,[]));
+  const key=apiKey();
+  if(!key)throw new Error('API 키가 없습니다. ① 쓰기 탭 맨 위에서 키를 넣어 주세요.');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'content-type':'application/json','x-api-key':key,
+      'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-5',max_tokens:8000,
+      messages:[{role:'user',content:prompt}]})});
+  if(!r.ok){
+    const t=await r.text();
+    if(r.status===401)throw new Error('키가 올바르지 않습니다. 다시 확인해 주세요.');
+    if(r.status===429)throw new Error('요청이 몰렸습니다. 잠시 뒤 다시 시도해 주세요.');
+    throw new Error(`${r.status} ${t.slice(0,160)}`);
+  }
+  const j=await r.json();
+  return (j.content||[]).map(c=>c.text||'').join('');
+}
+/* 키 입력 UI — 코워크 밖에서만 보인다 */
+(function(){
+  if(inCowork())return;
+  $('keyCard').classList.remove('hidden');
+  const paint=()=>{const k=apiKey();
+    $('keyState').textContent=k?`저장됨 · ${k.slice(0,7)}…${k.slice(-4)}`:'아직 없음';
+    $('f_key').value=k?'':'';};
+  paint();
+  $('btnKeySave').onclick=()=>{const v=$('f_key').value.trim();
+    if(!v){$('stKey').textContent='키를 붙여넣어 주세요.';$('stKey').className='status err';return;}
+    localStorage.setItem(KEYSTORE,v);$('f_key').value='';paint();
+    $('stKey').textContent='저장했습니다. 연결 확인을 눌러 보세요.';$('stKey').className='status ok';};
+  $('btnKeyClear').onclick=()=>{localStorage.removeItem(KEYSTORE);paint();
+    $('stKey').textContent='키를 지웠습니다.';$('stKey').className='status';};
+  $('btnKeyTest').onclick=async()=>{
+    $('stKey').textContent='확인 중…';$('stKey').className='status';
+    try{await callAI('안녕이라고만 답해 주세요.');
+      $('stKey').textContent='연결됐습니다. 이제 글을 만들 수 있습니다.';$('stKey').className='status ok';}
+    catch(e){$('stKey').textContent='실패: '+(e&&e.message||e);$('stKey').className='status err';}};
+})();
+const strip=s=>s.replace(/^#{1,6}\s+/gm,'').replace(/\*\*(.+?)\*\*/g,'$1').replace(/^\s*[-*+]\s+/gm,'').trim();
+const gotab=p=>document.querySelector(`[data-p="${p}"]`).click();
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* 진행 막대 */
+function startProg(id,secs,label){
+  const el=$(id);
+  el.innerHTML=`<div class="pbar"><i></i></div><span class="count pmsg">${label} 0%</span>`;
+  const bar=el.querySelector('i'),msg=el.querySelector('.pmsg'),t0=Date.now();
+  const iv=setInterval(()=>{
+    const e=(Date.now()-t0)/1000;
+    const p=Math.min(93,100*(1-Math.exp(-e/(secs*0.5))));
+    bar.style.width=p.toFixed(0)+'%';
+    msg.textContent=`${label} ${p.toFixed(0)}% · 약 ${Math.max(1,Math.ceil(secs-e))}초 남음`;
+  },200);
+  return{done(ok,txt){clearInterval(iv);bar.style.width='100%';
+    bar.style.background=ok?'var(--ok)':'var(--err)';
+    msg.textContent=txt||(ok?'완료 100%':'실패');
+    if(ok)setTimeout(()=>{el.innerHTML='';},2500);}};
+}
+/* 바뀐 문장 굵게 */
+function markDiff(oldT,newT){
+  const norm=s=>s.replace(/\s+/g,' ').trim();
+  const old=new Set(oldT.split(/(?<=[.!?？])\s+|\n+/).map(norm).filter(Boolean));
+  return newT.split('\n').map(line=>{
+    if(!line.trim())return '';
+    return line.split(/(?<=[.!?？])\s+/).map(s=>{
+      const t=norm(s); if(!t)return esc(s);
+      return old.has(t)?esc(s):'<b>'+esc(s)+'</b>';}).join(' ');
+  }).join('\n');
+}
+
+/* ================= 탭·위저드 ================= */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');$(t.dataset.p).classList.add('on');
+  if(t.dataset.p==='p3')renderPlatCards();
+  if(t.dataset.p==='p4')echoPub();
+});
+function goStep(n){
+  document.querySelectorAll('.wstep').forEach(w=>w.classList.toggle('on',+w.dataset.s===n));
+  document.querySelectorAll('.stp').forEach(s=>{const i=+s.dataset.s;
+    s.classList.toggle('on',i===n);s.classList.toggle('done',i<n);});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>goStep(+b.dataset.go));
+document.querySelectorAll('.stp').forEach(s=>s.onclick=()=>goStep(+s.dataset.s));
+
+function initChips(id,single,cb){
+  const box=$(id);
+  box.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+    if(single){box.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');}
+    else c.classList.toggle('on');
+    if(cb)cb(c);});
+}
+initChips('purposeChips',true,()=>syncDesc());
+initChips('endChips',true);initChips('partChips',false);initChips('toneChips',false);
+initChips('refTabs',true,c=>['text','link','file'].forEach(v=>
+  $('refPane_'+v).classList.toggle('hidden',v!==c.dataset.v)));
+initChips('extraChips',false,()=>renderChecks());
+initChips('platChips',false,()=>{renderPlatCards();echoPub();});
+initChips('subjChips',true,()=>syncDesc());
+initChips('genreChips',true,()=>syncDesc());
+initChips('readerChips',true,c=>{
+  $('f_reader_c').classList.toggle('hidden',c.dataset.v!=='__custom__');syncDesc();});
+initChips('ckFilter',true,()=>renderChecks());
+initChips('hFilter',true,()=>renderHist());
+const picked=id=>[...$(id).querySelectorAll('.chip.on')].map(c=>c.dataset.v);
+const pick1=id=>picked(id)[0];
+const setChips=(id,v)=>$(id).querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',(v||[]).includes(c.dataset.v)));
+
+$('f_style').innerHTML=Object.entries(STYLE).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('');
+$('f_conc').innerHTML=Object.entries(CONC).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('');
+function syncDesc(){
+  $('styleDesc').textContent=STYLE[$('f_style').value].t;
+  $('concDesc').textContent=CONC[$('f_conc').value].t;
+  $('subjTip').textContent=SUBJ[pick1('subjChips')||'writing'].t;
+  $('genreTip').textContent=GENRE[pick1('genreChips')||'column'].t;
+  $('purposeTip').textContent=PURPOSE[pick1('purposeChips')||'persuade'].t;
+  const r=pick1('readerChips');
+  $('readerTip').textContent=READER[r]?READER[r].t:'';
+}
+$('f_style').onchange=()=>{syncDesc();renderChecks();};
+$('f_conc').onchange=()=>{syncDesc();renderChecks();};
+$('f_len').oninput=e=>$('lenLabel').textContent=e.target.value;
+(function(){const d=new Date(),w=d.getDay();let a=(4-w+7)%7;if(!a)a=7;
+  d.setDate(d.getDate()+a);const p=n=>String(n).padStart(2,'0');
+  $('s_from').value=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;})();
+
+/* 첨부 파일 */
+let fileTexts=[],fileNames=[];
+$('f_files').onchange=async e=>{
+  fileTexts=[];fileNames=[];
+  const fs=[...e.target.files];
+  for(const f of fs){
+    fileNames.push(f.name);
+    if(/\.(txt|md|csv|json)$/i.test(f.name)){
+      try{fileTexts.push(`[${f.name}]\n`+(await f.text()).slice(0,8000));}catch(err){}
+    }
+  }
+  $('fileList').innerHTML=fs.length?fs.map(f=>
+    `· ${f.name} <span class="count">${/\.(txt|md|csv|json)$/i.test(f.name)?'내용 읽음':'이름만 전달'}</span>`).join('<br>'):'';
+};
+
+/* ================= 폼 ================= */
+const tune={};Object.keys(PLAT).forEach(k=>tune[k]={len:PLAT[k].len,tag:PLAT[k].tag});
+function refAll(){
+  const out=[];
+  const t=$('f_ref').value.trim(); if(t)out.push(t);
+  const l=$('f_links').value.trim();
+  if(l)out.push('[참고 링크 — 초안을 만든 뒤 대화창에서 열어 확인할 것]\n'+l);
+  if(fileTexts.length)out.push(fileTexts.join('\n\n'));
+  const other=fileNames.filter(n=>!/\.(txt|md|csv|json)$/i.test(n));
+  if(other.length)out.push('[첨부 파일 — 내용은 대화창에서 열어 확인할 것]\n'+other.join('\n'));
+  return out.join('\n\n');
+}
+function form(){
+  const r=pick1('readerChips');
+  return{bg:$('f_bg').value.trim(),goal:$('f_goal').value.trim(),
+    purpose:pick1('purposeChips')||'persuade',
+    subj:pick1('subjChips')||'writing',genre:pick1('genreChips')||'column',
+    topic:$('f_topic').value.trim(),ref:refAll(),
+    style:$('f_style').value,conc:$('f_conc').value,len:+$('f_len').value,
+    ending:pick1('endChips')||'polite',parts:picked('partChips'),tone:picked('toneChips'),
+    extra:picked('extraChips'),known:$('f_known').value.trim(),
+    readerKey:r,
+    reader:r==='__custom__'?$('f_reader_c').value.trim():(READER[r]?READER[r].n:''),
+    readerG:r==='__custom__'?'':(READER[r]?READER[r].g:''),
+    plat:picked('platChips')};
+}
+function validate(f){
+  if(!f.topic)return '주제를 입력하세요. (2단계)';
+  if(!f.ref)return '참고자료나 최신 뉴스를 한 줄이라도 넣어 주세요. (2단계)';
+  if(!f.reader)return '대상 독자를 정하세요. (4단계)';
+  return null;
+}
+
+/* ================= 프롬프트 ================= */
+function rules(f){
+  const fmt=['마크다운 기호를 절대 출력하지 않는다. 우물정자, 별표, 붙임표, 목록 기호를 쓰지 않는다.',
+    '본문은 서술형 완성 문장의 줄글로 쓴다. 문단 사이는 한 줄 띄운다.'];
+  fmt.push(f.parts.includes('subhead')?'중간제목을 2~3개 넣는다. 기호 없이 별도 줄에 문장형으로 쓴다.':'중간제목을 넣지 않고 하나의 흐름으로 이어 쓴다.');
+  fmt.push(f.parts.includes('table')?'비교가 필요한 지점에 표를 1개 넣고 표 안은 개조식으로 간결하게 쓴다.':'표를 넣지 않는다.');
+  if(f.parts.includes('number'))fmt.push('이유나 방법을 첫째 둘째 셋째로 나누되 목록 기호가 아니라 문장 안에 녹여 서술한다.');
+  fmt.push('제목 한 줄과 본문만 출력한다.');
+  let s=`${CRAFT}
+
+[문체]
+${f.genre==='press'?'모든 문장을 ~다로 끝낸다. 보도자료 규칙이 우선한다.':ENDING[f.ending].r}
+도입은 개념 정의로 시작하지 않는다. 장면, 일화, 인용, 최신 뉴스 중 하나로 연다.
+추상적 훈계 대신 구체적 장면으로 보여준다.
+문단 끝은 짧은 단문으로 끊어 여운을 남긴다.
+광고 카피 어조, 소비자 가이드 어조, 번역투, 상투적 관용구, 이모지를 쓰지 않는다.
+${f.tone.join('\n')}
+
+[형식]
+${fmt.join('\n')}`;
+  if(f.extra.includes('aeo'))s+='\n\n'+AEO_RULE;
+  if(f.extra.includes('human'))s+='\n\n'+HUM_RULE;
+  return s;
+}
+function core(f){
+  const lo=Math.round(f.len*.93),hi=Math.round(f.len*1.07);
+  return`[역할] 당신은 20년 경력의 스피치라이터이자 전문 필자입니다.
+
+[배경] ${f.bg||'(따로 없음)'}
+[목적] ${f.goal||'(따로 없음)'} · 쓰임새는 ${PURPOSE[f.purpose].n}입니다. ${PURPOSE[f.purpose].t}
+[소재] ${SUBJ[f.subj].n} — ${SUBJ[f.subj].g}
+[유형] ${GENRE[f.genre].n}
+${GENRE[f.genre].g}
+[주제] ${f.topic}
+[독자] ${f.reader}${f.readerG?`\n[이 독자에게 쓸 때] ${f.readerG}`:''}${f.known?`\n[독자가 이미 아는 것 — 설명을 건너뛴다] ${f.known}`:''}
+[분량] 공백 포함 ${lo}~${hi}자
+
+[전개 — ${STYLE[f.style].n}]
+${STYLE[f.style].r}
+
+[마무리 — ${CONC[f.conc].n}]
+${CONC[f.conc].r}
+
+[참고자료 — 이 안의 사실, 수치, 인용은 변형 없이 사용한다]
+${f.ref}
+
+${rules(f)}`;
+}
+function full(f){
+  const pl=f.plat.map(k=>PLAT[k].n);
+  return`${core(f)}
+
+[집필 전 확인]
+연결된 자료 보관함과 웹검색으로 주제 관련 최신 사실과 수치를 찾는다.
+수치는 출처와 시점을 병기하고 확인되지 않은 수치는 쓰지 않는다.
+
+[출력 순서]
+1) 확인한 근거 요약 다섯 줄 이내
+2) 본문
+${pl.map((p,i)=>`${i+3}) ${p} 원고`).join('\n')}
+${pl.length+3}) 자가 점검`;
+}
+
+/* ================= 생성 ================= */
+async function make(extra){
+  const f=form(),v=validate(f);
+  if(v){$('st1').textContent=v;$('st1').className='status err';$('st2').textContent=v;$('st2').className='status err';return;}
+  if(!hasAI()){$('st2').textContent='API 키를 먼저 넣어 주세요. ① 쓰기 탭 맨 위에 있습니다.';$('st2').className='status err';return;}
+  const len=extra&&extra.len?extra.len:f.len;
+  const secs=Math.max(12,Math.round(len/45));
+  const pg=startProg('prog2',secs,'쓰는 중…');
+  const old=$('draft').textContent;
+  $('draft').textContent='';
+  let p=core(f);
+  if(extra){
+    if(extra.len)p=p.replace(/\[분량\][^\n]*/,`[분량] 공백 포함 ${Math.round(extra.len*.93)}~${Math.round(extra.len*1.07)}자`);
+    if(extra.tone)p+=`\n\n[이번에 손볼 톤앤매너]\n${extra.tone}`;
+    if(extra.add)p+=`\n\n[이번에 반드시 넣을 내용]\n${extra.add}`;
+  }
+  try{const r=await callAI(p+'\n\n지금 바로 제목과 본문만 출력하십시오.');
+    const t=strip(r);
+    if(extra&&old.length>80)$('draft').innerHTML=markDiff(old,t); else $('draft').textContent=t;
+    setCount($('cnt2'),$('draft').textContent);renderChecks();
+    pg.done(true,'완료 100%');
+    $('st2').textContent=extra&&old.length>80?'다시 썼습니다. 굵게 표시된 문장이 달라진 부분입니다.':'다 됐습니다. 아래 자가 점검을 확인하세요.';
+    $('st2').className='status ok';}
+  catch(e){$('draft').textContent=old;pg.done(false);
+    $('st2').textContent='실패: '+(e&&e.message||e);$('st2').className='status err';}
+}
+$('btnGo').onclick=()=>{const v=validate(form());
+  if(v){$('st1').textContent=v;$('st1').className='status err';return;}
+  gotab('p2');make();};
+$('rw_len').oninput=e=>$('rwLenLabel').textContent=e.target.value;
+$('btnRewriteOpen').onclick=()=>{
+  $('rw_len').value=form().len;$('rwLenLabel').textContent=form().len;
+  $('rwBox').classList.toggle('hidden');};
+$('btnRewriteClose').onclick=()=>$('rwBox').classList.add('hidden');
+$('btnRewriteSame').onclick=()=>{$('rwBox').classList.add('hidden');make();};
+$('btnRewriteGo').onclick=()=>{
+  const e={len:+$('rw_len').value,tone:$('rw_tone').value.trim(),add:$('rw_add').value.trim()};
+  $('rwBox').classList.add('hidden');make(e);};
+$('btnEdit').onclick=()=>{const d=$('draft'),on=d.getAttribute('contenteditable')==='true';
+  d.setAttribute('contenteditable',on?'false':'true');
+  $('btnEdit').textContent=on?'직접 고치기':'고치기 끝';
+  if(!on)d.focus();else{setCount($('cnt2'),d.textContent);renderChecks();}};
+$('draft').addEventListener('input',()=>setCount($('cnt2'),$('draft').textContent));
+$('btnCopy2').onclick=e=>copy($('draft').textContent,$('st2'),'본문을 복사했습니다.',e.currentTarget);
+
+/* ================= 자가 점검 ================= */
+function baseChecks(f){
+  const E={polite:[/(입니다|합니다|해요|죠)[.?!]/,/(이다|한다)[.?!]/],
+    plain:[/(이다|한다|았다|었다)[.?!]/,/(입니다|해요)[.?!]/],
+    noun:[/(임|함|음)[.\n]/,/(입니다|이다)[.?!]/]}[f.ending];
+  const L=[['도입이 장면이나 일화로 열리는가',t=>!/^.{0,60}(란|이란)\s/.test(t)],
+    [`문장 끝맺음이 ${ENDING[f.ending].n}로 일관되는가`,t=>E[0].test(t)&&!E[1].test(t)],
+    ['마크다운 기호가 남아 있지 않은가',t=>!/(^|\n)\s*(#{1,6}\s|[-*+]\s)/.test(t)&&!/\*\*/.test(t)],
+    ['분량이 목표의 ±10% 안인가',t=>alen(t)>=f.len*.9&&alen(t)<=f.len*1.1]];
+  if(f.parts.includes('subhead'))L.push(['중간제목이 2~3개인가',t=>{
+    const b=paras(t).filter(s=>s.trim().length<40&&!/[.!?]$/.test(s.trim()));return b.length>=2&&b.length<=4;}]);
+  if(f.parts.includes('table'))L.push(['표가 들어 있는가',t=>/\|/.test(t)]);
+  if(f.parts.includes('number'))L.push(['첫째 둘째 셋째로 나뉘는가',t=>(t.match(/첫째|둘째|셋째/g)||[]).length>=2]);
+  return L;
+}
+const AEO_CK=[['수치·연도가 3건 이상인가',t=>(t.match(/\d{2,}/g)||[]).length>=3],
+  ['출처를 밝힌 표현이 있는가',t=>/(에 따르면|출처|발표|조사에서|연구는|보고서)/.test(t)],
+  ['제목이 질문형인가',t=>/[?？]/.test((t.split('\n')[0]||''))],
+  ['잘라내도 뜻이 통하는 문장이 3개 이상인가',null]];
+const HUM_CK=[['번역투 표현이 없는가',t=>(t.match(/에 대한|을 통해|에 있어서|라고 할 수 있|것으로 보인다|되어지/g)||[]).length<=1],
+  ['접속사로 시작하는 문장이 10% 미만인가',t=>{
+    const s=t.split(/(?<=[.!?？])\s+/).filter(x=>x.trim());if(!s.length)return false;
+    return s.filter(x=>/^(그리고|하지만|그러나|또한|그래서|따라서|그런데)/.test(x.trim())).length/s.length<0.1;}],
+  ['문장 길이가 들쭉날쭉한가',t=>{
+    const s=t.split(/(?<=[.!?？])\s+/).map(x=>x.trim().length).filter(x=>x>3);
+    if(s.length<5)return false;const m=s.reduce((a,b)=>a+b)/s.length;
+    return Math.sqrt(s.reduce((a,b)=>a+(b-m)**2,0)/s.length)>m*0.45;}],
+  ['상투어가 없는가',t=>!/(시사하는 바가 크|아무리 강조해도|다름 아니|귀추가 주목)/.test(t)],
+  ['형식명사 반복이 과하지 않은가',t=>(t.match(/것[이은을의]|수 있|등[의을이]/g)||[]).length<alen(t)/90]];
+function renderChecks(){
+  const t=$('draft').textContent||'',f=form(),only=pick1('ckFilter')==='fail';
+  let html='',pass=0,total=0;
+  const block=(title,items)=>{
+    const rows=items.map(([q,fn])=>{
+      let r;try{r=(typeof fn==='function')?fn(t):fn;}catch(e){r=null;}
+      if(r!==null){total++;if(r)pass++;}
+      if(only&&r!==false)return '';
+      const m=r===null?'<span style="color:var(--warn)">직접 확인</span>'
+        :(r?'<span style="color:var(--ok)">통과</span>':'<span style="color:var(--err)">보완</span>');
+      return`<div class="ck"><span>${q}</span>${m}</div>`;}).join('');
+    if(rows)html+=`<div class="grp">${title}</div>${rows}`;
+  };
+  block('기본',baseChecks(f));
+  block(`전개 · ${STYLE[f.style].n}`,STYLE[f.style].c);
+  block(`마무리 · ${CONC[f.conc].n}`,CONC[f.conc].c(t));
+  if(f.extra.includes('aeo'))block('AEO',AEO_CK);
+  if(f.extra.includes('human'))block('휴머나이즈',HUM_CK);
+  $('checks').innerHTML=html||'<p class="count" style="margin:0">보완할 항목이 없습니다.</p>';
+  $('ckScore').textContent=total?`${pass} / ${total} 통과`:'';
+}
+async function rewrite(kind){
+  const b=$('draft').textContent.trim();
+  if(b.length<50){alert('먼저 초안을 만드세요.');return;}
+  const f=form();
+  const fails=[...$('checks').querySelectorAll('.ck')].filter(d=>d.innerHTML.includes('보완'))
+    .map(d=>d.querySelector('span').textContent);
+  const head={fix:fails.length?`아래 글에서 다음 항목만 고쳐 주십시오. 나머지는 손대지 마십시오.\n${fails.map(x=>'· '+x).join('\n')}`
+      :'보완 항목이 없습니다. 문장 리듬만 다듬어 주십시오.',
+    aeo:`아래 글을 AI 답변엔진이 인용하기 좋게 고쳐 주십시오.\n${AEO_RULE}`,
+    hum:`아래 글에서 AI 티를 지워 주십시오. 사실, 수치, 고유명사, 인용은 한 글자도 바꾸지 마십시오.\n${HUM_RULE}`}[kind];
+  if(!hasAI()){copy(`${head}\n\n[유지할 것]\n${ENDING[f.ending].r}\n\n[원문]\n${b}`,$('st2b'),'고쳐쓰기 프롬프트를 복사했습니다.');return;}
+  const pg=startProg('prog2b',Math.max(10,Math.round(b.length/60)),'고치는 중…');
+  $('st2b').textContent='';
+  try{const r=await callAI(`${head}\n\n[유지할 것]\n${ENDING[f.ending].r}\n사실과 수치는 바꾸지 않는다.\n\n[원문]\n${b}\n\n고친 본문만 출력하십시오.`);
+    const t=strip(r);
+    $('draft').innerHTML=markDiff(b,t);
+    setCount($('cnt2'),$('draft').textContent);renderChecks();pg.done(true,'완료 100%');
+    $('st2b').textContent='굵게 표시된 문장이 고쳐진 부분입니다.';$('st2b').className='status ok';}
+  catch(e){pg.done(false);$('st2b').textContent='실패: '+(e&&e.message||e);$('st2b').className='status err';}
+}
+$('btnFix').onclick=()=>rewrite('fix');
+$('btnFixAeo').onclick=()=>rewrite('aeo');
+$('btnFixHum').onclick=()=>rewrite('hum');
+
+/* ================= 매체별 원고 ================= */
+function renderPlatCards(){
+  const f=form();
+  if(!f.plat.length){$('platCards').innerHTML='<div class="card"><p class="desc" style="margin:0">위에서 매체를 하나 이상 고르세요.</p></div>';return;}
+  $('platCards').innerHTML=f.plat.map(k=>{const P=PLAT[k];return`
+   <div class="card">
+     <h2>${P.n} <span class="count" id="cnt_${k}"></span></h2>
+     <p class="desc">${P.d}</p>
+     <div class="tune">
+       <span>글자수</span><input type="number" class="mini" id="tl_${k}" value="${tune[k].len}" min="100" max="4000" step="50">
+       <span>해시태그</span><input type="number" class="mini" id="tt_${k}" value="${tune[k].tag}" min="0" max="10">
+       <button class="btn sm" data-gen="${k}">쓰기</button>
+       <button class="btn grey sm" data-ed="${k}">직접 고치기</button>
+       <button class="btn ghost sm" data-cp="out_${k}">복사</button>
+     </div>
+     <div id="prog_${k}"></div>
+     <div class="out" id="out_${k}" contenteditable="false">쓰기 버튼을 누르세요.</div>
+   </div>`;}).join('');
+  $('platCards').querySelectorAll('[data-gen]').forEach(b=>b.onclick=()=>conv(b.dataset.gen));
+  $('platCards').querySelectorAll('[data-cp]').forEach(b=>b.onclick=e=>copy($(b.dataset.cp).textContent,null,'',e.currentTarget));
+  $('platCards').querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>{
+    const el=$('out_'+b.dataset.ed),on=el.getAttribute('contenteditable')==='true';
+    el.setAttribute('contenteditable',on?'false':'true');
+    b.textContent=on?'직접 고치기':'고치기 끝';
+    if(!on)el.focus(); else setCount($('cnt_'+b.dataset.ed),el.textContent);});
+  f.plat.forEach(k=>{$('tl_'+k).onchange=e=>tune[k].len=+e.target.value;
+    $('tt_'+k).onchange=e=>tune[k].tag=+e.target.value;
+    $('out_'+k).addEventListener('input',()=>setCount($('cnt_'+k),$('out_'+k).textContent));});
+}
+async function conv(k){
+  const b=$('draft').textContent.trim();
+  if(!b||b.length<50){alert('먼저 ② 초안 탭에서 본문을 만드세요.');return;}
+  const f=form(),el=$('out_'+k),P=PLAT[k];
+  const keep=k==='threads'?'반말로 쓴다. 사실, 수치, 고유명사, 인용은 한 글자도 바꾸지 않는다.'
+    :`${ENDING[f.ending].r}\n사실, 수치, 고유명사, 인용은 한 글자도 바꾸지 않는다.`;
+  const p=`${P.s(tune[k].len,tune[k].tag)}\n\n[유지할 것]\n${keep}\n\n[원문]\n${b}`;
+  if(!hasAI()){copy(p,null);el.textContent='이 화면에서는 바로 만들 수 없어 변환 프롬프트를 복사했습니다.';return;}
+  const pg=startProg('prog_'+k,Math.max(8,Math.round(tune[k].len/50)),'쓰는 중…');
+  el.textContent='';
+  try{const r=await callAI(p);el.textContent=strip(r);
+    setCount($('cnt_'+k),el.textContent);pg.done(true,'완료 100%');}
+  catch(e){el.textContent='실패: '+(e&&e.message||e);pg.done(false);}
+}
+$('btnGenAll').onclick=async()=>{for(const k of form().plat)await conv(k);};
+
+/* ================= 발행 ================= */
+function echoPub(){
+  const f=form();
+  $('platEcho').innerHTML=f.plat.length?f.plat.map(k=>`<span class="chip on">${PLAT[k].n}</span>`).join('')
+    :'<span class="count">③ 매체별 원고 탭에서 매체를 고르세요.</span>';
+}
+const HOW={linkedin:'링크드인 새 게시물 창을 열어 본문을 넣고 게시합니다.',
+  brunch:'브런치 글쓰기 창을 열어 제목, 부제, 본문을 넣고 발행합니다.',
+  facebook:'페이스북 게시물 작성창을 열어 본문을 넣고 게시합니다.',
+  threads:'쓰레드 새 스레드 창을 열어 본문을 넣고 게시합니다.'};
+function bodyOf(k){const el=$('out_'+k);const v=el?el.textContent.trim():'';
+  return(v.length>40&&!/^(쓰기 버튼|이 화면|쓰는 중)/.test(v))?v:$('draft').textContent.trim();}
+function schedText(){
+  const rep=$('s_rep').value,from=$('s_from').value,tm=$('s_time').value,
+    until=$('s_until').value,dow=picked('dowChips');
+  if(rep==='once')return `${from} ${tm}에 한 번`;
+  const d=dow.length?dow.join('·')+'요일':'요일 미선택';
+  const r={weekly:'매주',biweekly:'2주마다',monthly:'매월 같은 날'}[rep];
+  return `${from}부터 ${r} ${rep==='monthly'?'':d+' '}${tm}${until?` (${until}까지)`:''}`;
+}
+function refreshSched(){
+  const rep=$('s_rep').value;
+  $('dowWrap').classList.toggle('dim',rep==='once'||rep==='monthly');
+  $('schedEcho').textContent='예약 내용: '+schedText();
+}
+['s_rep','s_from','s_time','s_until'].forEach(i=>$(i).onchange=refreshSched);
+$('dowChips').addEventListener('click',()=>setTimeout(refreshSched,0));
+initChips('dowChips',false);
+$('btnLaterOpen').onclick=()=>{$('schedBox').classList.remove('hidden');refreshSched();
+  $('schedBox').scrollIntoView({behavior:'smooth',block:'nearest'});};
+$('btnLaterClose').onclick=()=>$('schedBox').classList.add('hidden');
+function pubPrompt(mode){
+  const f=form();
+  const head={now:'지금 바로 발행해 주세요.',
+    later:`다음 일정에 맞춰 발행해 주세요.\n일정: ${schedText()}\n반복 일정이면 예약 작업으로 등록해 주세요. 매체가 자체 예약을 지원하면 그 기능을 쓰고, 아니면 해당 시각에 실행되는 예약 작업을 만들어 주세요.`,
+    draft:'글만 채워 넣고 발행은 하지 마세요. 입력이 끝나면 화면을 캡처해 보여주고 멈추세요.'}[mode];
+  return`${head}
+아이디와 비밀번호는 입력하지 말고 이미 로그인된 크롬 세션만 사용하세요.
+
+${f.plat.map((k,i)=>`${i+1}. ${PLAT[k].n} — ${HOW[k]}`).join('\n')}
+
+${mode==='draft'?'':`발행이 끝나면 각 글의 주소를 알려 주고, ${XLSX} 의 발행일지 시트에 매체당 한 줄씩 추가해 주세요.
+열 순서: 번호 | 발행일자 | 발행시각 | 매체 | 제목 | 주제 | 분량 | 주소 | 상태 | 비고
+주제 ${f.topic} / 상태 ${mode==='now'?'발행완료':'예약'}
+`}
+${f.plat.map(k=>`━━━ ${PLAT[k].n} 본문 ━━━\n${bodyOf(k)}`).join('\n\n')}`;
+}
+function logAuto(state,date,time){
+  const f=form(),h=hist();
+  const title=($('draft').textContent.trim().split('\n')[0]||f.topic).slice(0,80);
+  f.plat.forEach(k=>h.unshift({date,time,media:PLAT[k].n,title,topic:f.topic,
+    len:alen(bodyOf(k)),url:'',state,memo:''}));
+  saveH(h);renderHist();
+}
+function showPubSteps(mode){
+  const f=form();
+  const what={now:'발행',later:'예약 발행',draft:'글 채워넣기'}[mode];
+  $('pubSteps').innerHTML=`<div class="steps2">
+    <h3>복사 완료 — 이제 두 번만 누르면 올라갑니다</h3>
+    <ol>
+      <li>이 화면 아래쪽 <b>대화창</b>을 클릭합니다.</li>
+      <li><span class="kbd">Ctrl</span> + <span class="kbd">V</span> 로 붙여넣고 <span class="kbd">Enter</span>.</li>
+    </ol>
+    <p class="hintline">붙여넣으면 Claude가 크롬을 열어 ${f.plat.map(k=>PLAT[k].n).join('·')}에 ${what}을 진행합니다.
+    앱 화면은 보안상 브라우저를 직접 조작할 수 없어 이 한 단계가 필요합니다.</p>
+    <div class="row" style="margin-top:8px">
+      <button class="btn grey sm" id="btnStepsClose">닫기</button></div>
+  </div>`;
+  $('btnStepsClose').onclick=()=>$('pubSteps').innerHTML='';
+}
+$('btnNow').onclick=e=>{const f=form();
+  if(!f.plat.length){$('st4').textContent='③ 탭에서 매체를 고르세요.';$('st4').className='status err';return;}
+  const d=new Date(),p=n=>String(n).padStart(2,'0');
+  copy(pubPrompt('now'),null,'',e.currentTarget);showPubSteps('now');
+  logAuto('발행완료',`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`,`${p(d.getHours())}:${p(d.getMinutes())}`);};
+$('btnLater').onclick=e=>{const f=form();
+  if(!f.plat.length){$('st4').textContent='③ 탭에서 매체를 고르세요.';$('st4').className='status err';return;}
+  if($('s_rep').value!=='once'&&$('s_rep').value!=='monthly'&&!picked('dowChips').length){
+    $('st4').textContent='요일을 하나 이상 고르세요.';$('st4').className='status err';return;}
+  copy(pubPrompt('later'),null,'',e.currentTarget);showPubSteps('later');
+  logAuto('예약',$('s_from').value,$('s_time').value);};
+$('btnDraftOnly').onclick=e=>{copy(pubPrompt('draft'),null,'',e.currentTarget);showPubSteps('draft');};
+
+/* ================= 저장 ================= */
+const store=()=>JSON.parse(localStorage.getItem(LS)||'{}');
+const put=o=>localStorage.setItem(LS,JSON.stringify(o));
+function snapshot(){
+  return{...form(),rawRef:$('f_ref').value,links:$('f_links').value,
+    readerSel:pick1('readerChips'),readerC:$('f_reader_c').value,
+    draft:$('draft').textContent,tune,at:new Date().toISOString()};
+}
+let autoT=null;
+function autosave(){clearTimeout(autoT);autoT=setTimeout(()=>{
+  const s=store();s.auto=snapshot();put(s);},600);}
+document.querySelectorAll('#p1 input,#p1 textarea,#p1 select').forEach(el=>{
+  el.addEventListener('input',autosave);el.addEventListener('change',autosave);});
+document.querySelectorAll('#p1 .chip').forEach(c=>c.addEventListener('click',autosave));
+
+$('btnSave').onclick=()=>{
+  if(!confirm('지금까지 고른 네 단계 설정을 이 브라우저에 저장합니다.\n다음에 글을 쓸 때 1단계의 불러오기를 누르면 그대로 돌아옵니다.\n주제와 참고자료, 지금 초안도 함께 저장됩니다.\n\n저장할까요?'))return;
+  const s=store();s.preset=snapshot();put(s);
+  $('st1').textContent='설정을 저장했습니다.';$('st1').className='status ok';};
+$('btnLoad').onclick=()=>{const s=store();
+  const p=s.preset||s.auto;
+  if(!p){alert('저장된 내용이 없습니다.\n4단계 아래의 지금 설정 저장을 눌러 두시면 다음부터 여기서 되돌릴 수 있습니다.');return;}
+  const when=p.at?new Date(p.at).toLocaleString('ko-KR'):'시점 미상';
+  const kind=s.preset?'저장해 둔 설정':'마지막 작업 내용(자동 보관)';
+  if(!confirm(`${kind}을 불러옵니다.\n· 시점: ${when}\n· 주제: ${p.topic||'(비어 있음)'}\n\n지금 화면 내용은 덮어써집니다. 불러올까요?`))return;
+  if(p.draft&&p.draft.length>40){$('draft').textContent=p.draft;setCount($('cnt2'),p.draft);}
+  $('f_bg').value=p.bg||'';$('f_goal').value=p.goal||'';$('f_topic').value=p.topic||'';
+  $('f_ref').value=p.rawRef||'';$('f_links').value=p.links||'';$('f_known').value=p.known||'';
+  setChips('purposeChips',[p.purpose]);
+  setChips('subjChips',[p.subj||'writing']);setChips('genreChips',[p.genre||'column']);
+  $('f_style').value=STYLE[p.style]?p.style:'argue';$('f_conc').value=CONC[p.conc]?p.conc:'danon';
+  $('f_len').value=p.len||1400;$('lenLabel').textContent=p.len||1400;
+  setChips('endChips',[p.ending]);setChips('partChips',p.parts);setChips('toneChips',p.tone);
+  setChips('extraChips',p.extra);setChips('readerChips',[p.readerSel||'all']);
+  $('f_reader_c').value=p.readerC||'';$('f_reader_c').classList.toggle('hidden',p.readerSel!=='__custom__');
+  setChips('platChips',p.plat);
+  if(p.tune)Object.keys(p.tune).forEach(k=>{if(tune[k])tune[k]=p.tune[k];});
+  syncDesc();renderPlatCards();};
+
+/* ================= 발행일지 ================= */
+const hist=()=>store().history||[];
+const saveH=h=>{const s=store();s.history=h;put(s);};
+function rows(){return hist().slice().reverse().map((r,i)=>
+  [i+1,r.date,r.time||'',r.media,r.title,r.topic||'',r.len||'',r.url||'',r.state,r.memo||'']);}
+function renderHist(){
+  const all=hist(),fl=pick1('hFilter')||'all';
+  const h=fl==='all'?all:all.filter(r=>r.media===fl);
+  $('cntH').textContent=fl==='all'?`총 ${all.length}건`:`${fl} ${h.length}건 / 전체 ${all.length}건`;
+  renderStats(all);
+  if(!h.length){$('histBox').innerHTML='<p class="count" style="margin:0">아직 발행 내역이 없습니다. ④ 발행 탭에서 발행하면 여기에 쌓입니다.</p>';return;}
+  $('histBox').innerHTML='<table><tr><th style="width:14%">일자</th><th style="width:12%">매체</th><th>제목</th><th style="width:12%">상태</th><th style="width:7%"></th></tr>'+
+    h.map(r=>{const i=all.indexOf(r);return`<tr><td>${r.date||'-'}${r.time?'<br><span class="count">'+r.time+'</span>':''}</td>
+      <td>${r.media}</td><td>${r.title||'-'}${r.url?'<br><span class="count">'+r.url+'</span>':''}</td>
+      <td>${r.state}</td><td><button class="btn grey sm" data-del="${i}">×</button></td></tr>`;}).join('')+'</table>';
+  $('histBox').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    const x=hist();x.splice(+b.dataset.del,1);saveH(x);renderHist();});
+}
+function renderStats(all){
+  if(!all.length){$('statBox').innerHTML='<p class="count" style="margin:0">발행하면 여기에 요약이 나옵니다.</p>';
+    $('statLine').textContent='';return;}
+  const byM={},byT={};let latest='';
+  all.forEach(r=>{byM[r.media]=(byM[r.media]||0)+1;
+    if(r.topic)byT[r.topic]=(byT[r.topic]||0)+1;
+    if(r.date>latest)latest=r.date;});
+  const days=latest?Math.round((Date.now()-new Date(latest))/86400000):null;
+  $('statLine').textContent=latest?`마지막 발행 ${latest}${days>=0?` · ${days}일 전`:''}`:'';
+  $('statBox').innerHTML='<table><tr>'+Object.keys(byM).map(m=>`<th>${m}</th>`).join('')+'</tr><tr>'+
+    Object.values(byM).map(v=>`<td>${v}건</td>`).join('')+'</tr></table>'+
+    (Object.keys(byT).length?`<p class="sub">다룬 주제 ${Object.keys(byT).length}개 · 최근: ${Object.keys(byT).slice(0,3).join(' / ')}</p>`:'');
+}
+$('btnSuggest').onclick=async()=>{
+  const all=hist();
+  const f=form();
+  const list=all.length?all.slice(0,25).map(r=>`${r.date} ${r.media} — ${r.title}${r.topic?` (주제: ${r.topic})`:''}`).join('\n')
+    :'(아직 발행 내역이 없습니다)';
+  const p=`아래는 지금까지 발행한 글 목록입니다.
+
+${list}
+
+이 목록을 보고 다음에 쓸 주제를 5개 제안해 주십시오. 소재는 ${SUBJ[f.subj].n}, 유형은 ${GENRE[f.genre].n}입니다.
+· 이미 다룬 주제를 반복하지 말고, 다루지 않은 각도를 찾아 주십시오.
+· 이미 쓴 글에서 자연스럽게 이어지는 후속편이 있으면 하나는 그것으로 잡아 주십시오.
+· 각 제안은 한 줄 제목과 한 줄 근거로만 씁니다. 왜 지금 이 주제인지가 근거에 들어가야 합니다.
+· 마크다운 기호를 쓰지 말고 번호와 줄바꿈으로만 구분하십시오.`;
+  $('sugBox').classList.remove('hidden');
+  if(!hasAI()){copy(p,$('st5'),'주제 제안 프롬프트를 복사했습니다. 대화창에 붙여넣으세요.');
+    $('sugBox').textContent='이 화면에서는 바로 만들 수 없어 프롬프트를 복사했습니다.';return;}
+  $('sugBox').textContent='내역을 훑는 중…';
+  try{const r=await callAI(p);$('sugBox').textContent=strip(r);}
+  catch(e){$('sugBox').textContent='실패: '+(e&&e.message||e);}
+};
+const HEAD='번호,발행일자,발행시각,매체,제목,주제,분량,주소,상태,비고';
+function csv(){const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  return HEAD+'\n'+rows().map(r=>r.map(q).join(',')).join('\n');}
+$('btnCsv').onclick=()=>{if(!hist().length){$('st5').textContent='내보낼 기록이 없습니다.';$('st5').className='status err';return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv()],{type:'text/csv;charset=utf-8'}));
+  a.download='발행일지.csv';a.click();URL.revokeObjectURL(a.href);
+  $('st5').textContent='CSV를 내려받았습니다.';$('st5').className='status ok';};
+$('btnGsheet').onclick=()=>{if(!hist().length){$('st5').textContent='보낼 기록이 없습니다.';$('st5').className='status err';return;}
+  copy(`구글 드라이브에 아래 표를 구글 시트로 만들어 주세요.
+파일 제목: 발행일지_${new Date().toISOString().slice(0,10)}
+같은 이름이 있으면 뒤에 순번을 붙이고, 만든 뒤 시트 주소를 알려 주세요.
+
+${csv()}`,$('st5'),'구글 시트 생성 지시문을 복사했습니다.');};
+$('btnXlsx').onclick=()=>{if(!hist().length){$('st5').textContent='반영할 기록이 없습니다.';$('st5').className='status err';return;}
+  copy(`${XLSX} 의 발행일지 시트에 아래 행들을 추가해 주세요.
+같은 발행일자와 매체와 제목 조합이 이미 있으면 건너뛰고, 번호는 마지막 번호에 이어서 매겨 주세요.
+열 순서: ${HEAD.replace(/,/g,' | ')}
+
+${rows().map(r=>r.join(' | ')).join('\n')}`,$('st5'),'보관함 엑셀 반영 지시문을 복사했습니다.');};
+$('btnWipe').onclick=()=>{if(confirm('기록을 모두 지울까요?')){saveH([]);renderHist();}};
+
+syncDesc();renderChecks();renderHist();renderPlatCards();echoPub();refreshSched();
+})();
+</script>
+</body>
+</html>
