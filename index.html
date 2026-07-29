@@ -93,7 +93,7 @@ th{background:var(--panel);font-weight:600}
 </head>
 <body>
 <div class="wrap">
-<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-5</small></h1>
+<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-7</small></h1>
 
 <div class="tabs">
   <button class="tab on" data-p="p1">① 쓰기</button>
@@ -119,7 +119,16 @@ th{background:var(--panel);font-weight:600}
         <input type="text" id="f_code" placeholder="예: 1022한겨레">
       </div>
       <div id="gbtn"></div>
-    </div>
+      <div id="webviewWarn" class="hidden" style="border:1px solid var(--warn);background:#fdf8ef;
+        border-radius:9px;padding:12px 13px;margin-top:10px;font-size:13px;line-height:1.65">
+        <b>지금 화면에서는 구글 로그인이 열리지 않습니다.</b><br>
+        카카오톡이나 인스타그램 같은 앱 안에서 열린 화면이라 구글이 로그인을 막습니다.
+        오른쪽 위 또는 아래의 메뉴 버튼을 눌러 <b>다른 브라우저로 열기</b>를 고르시면 됩니다.
+        <div class="row" style="margin-top:9px">
+          <button class="btn grey sm" id="btnCopyUrl">주소 복사</button>
+          <span class="count" id="copyUrlMsg"></span>
+        </div>
+      </div>
     <div class="row hidden" id="meRow" style="margin-top:6px">
       <span class="count" id="meLine"></span>
       <button class="btn grey sm" id="btnLogout">로그아웃</button>
@@ -773,8 +782,24 @@ async function callAI(prompt,kind){
     if(cfg.needCode){$('codeField').classList.remove('hidden');$('f_code').value=entryCode;}
     if(!cfg.clientId){$('stLogin').textContent='로그인 설정이 아직 준비되지 않았습니다. 관리자에게 문의해 주세요.';
       $('stLogin').className='status err';return;}
+    const ua=navigator.userAgent||'';
+    const inApp=/KAKAOTALK|KAKAOSTORY|FBAN|FBAV|FB_IAB|Instagram|Line\/|NAVER\(inapp|DaumApps|; wv\)/i.test(ua);
+    if(inApp){
+      $('webviewWarn').classList.remove('hidden');
+      $('btnCopyUrl').onclick=async()=>{
+        try{await navigator.clipboard.writeText(location.href.split('?')[0]);
+          $('copyUrlMsg').textContent='복사했습니다. 크롬 주소창에 붙여넣으세요.';}
+        catch(e){$('copyUrlMsg').textContent='복사가 막혔습니다. 주소창을 길게 눌러 복사해 주세요.';}
+      };
+    }
+    let tries=0;
     const boot=()=>{
-      if(!(window.google&&google.accounts&&google.accounts.id))return setTimeout(boot,300);
+      if(!(window.google&&google.accounts&&google.accounts.id)){
+        if(++tries>40){
+          $('stLogin').textContent='구글 로그인 창을 불러오지 못했습니다. 크롬이나 사파리에서 다시 열어 주세요.';
+          $('stLogin').className='status err';
+          $('webviewWarn').classList.remove('hidden');return;}
+        return setTimeout(boot,300);}
       google.accounts.id.initialize({client_id:cfg.clientId,callback:res=>{
         idToken=res.credential;localStorage.setItem('wb_token',idToken);enter();}});
       google.accounts.id.renderButton($('gbtn'),{theme:'outline',size:'large',text:'signin_with',locale:'ko'});
@@ -785,6 +810,14 @@ async function callAI(prompt,kind){
 })();
 
 /* ================= 탭·위저드 ================= */
+function gotab(pid){
+  const t=[...document.querySelectorAll('.tab')].find(x=>x.dataset.p===pid);
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  if(t)t.classList.add('on');
+  const pg=$(pid); if(pg)pg.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
@@ -988,6 +1021,36 @@ window.addEventListener('error',function(){
     b.textContent='화면에 문제가 생겨 멈췄습니다. 새로고침한 뒤 다시 눌러 주세요.';
     b.className='status err';}
 });
+
+/* ================= 출력 다듬기 ================= */
+/* AI가 흘린 마크다운 기호를 걷어낸다. 표의 세로줄은 남긴다. */
+function strip(t){
+  return String(t||'')
+    .replace(/```[a-zA-Z]*\n?/g,'')
+    .replace(/^\s{0,3}#{1,6}\s*/gm,'')
+    .replace(/^\s{0,3}>\s?/gm,'')
+    .replace(/\*\*([^*]+)\*\*/g,'$1')
+    .replace(/__([^_]+)__/g,'$1')
+    .replace(/`([^`]+)`/g,'$1')
+    .replace(/^\s{0,3}[*+]\s+/gm,'')
+    .replace(/^\s{0,3}[-–—•]\s+(?![-|])/gm,'')
+    .replace(/\n{3,}/g,'\n\n')
+    .trim();
+}
+/* 다시 쓴 글에서 달라진 문장만 굵게 */
+function markDiff(oldT,newT){
+  const esc=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const cut=x=>String(x||'').split(/(?<=[.!?…])\s+/);
+  const key=x=>x.replace(/\s+/g,'');
+  const old=new Set(cut(oldT).map(key).filter(Boolean));
+  return String(newT||'').split('\n').map(line=>{
+    if(!line.trim())return '';
+    return cut(line).map(sen=>{
+      const e=esc(sen);
+      return old.has(key(sen))?e:'<b>'+e+'</b>';
+    }).join(' ');
+  }).join('<br>');
+}
 
 /* ================= 진행 막대 ================= */
 function startProg(id,secs,label){
