@@ -10,5 +10,5 @@
    =========================================================== */
 
 window.WB_CONFIG = {
-  SERVER: ''
+  SERVER: 'https://writing-partner.goodlife1102.workers.dev'
 };
