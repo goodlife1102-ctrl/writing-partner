@@ -871,10 +871,21 @@ function form(){
     plat:picked('platChips')};
 }
 function validate(f){
-  if(!f.topic)return '주제를 입력하세요. (2단계)';
-  if(!f.ref)return '참고자료나 최신 뉴스를 한 줄이라도 넣어 주세요. (2단계)';
-  if(!f.reader)return '대상 독자를 정하세요. (4단계)';
+  if(!f.topic)return {msg:'주제를 아직 안 적으셨습니다. 2단계로 옮겨 드렸습니다.',step:2,focus:'f_topic'};
+  if(!f.ref)return {msg:'참고자료나 최신 뉴스를 한 줄이라도 넣어 주세요. 2단계로 옮겨 드렸습니다.',step:2,focus:'f_ref'};
+  if(!f.reader)return {msg:'대상 독자를 정해 주세요. 4단계로 옮겨 드렸습니다.',step:4,focus:null};
   return null;
+}
+function blockAt(v,el){
+  const box=$(el);
+  if(box){box.textContent=v.msg;box.className='status err';}
+  goStep(v.step);
+  if(v.focus){
+    const f=$(v.focus);
+    if(f){f.focus();f.style.borderColor='var(--err)';f.style.boxShadow='0 0 0 3px rgba(178,59,59,.14)';
+      const clr=()=>{f.style.borderColor='';f.style.boxShadow='';f.removeEventListener('input',clr);};
+      f.addEventListener('input',clr);}
+  }
 }
 
 /* ================= 프롬프트 ================= */
@@ -988,7 +999,7 @@ function startProg(id,secs,label){
 /* ================= 생성 ================= */
 async function make(extra){
   const f=form(),v=validate(f);
-  if(v){$('st1').textContent=v;$('st1').className='status err';$('st2').textContent=v;$('st2').className='status err';return;}
+  if(v){gotab('p1');blockAt(v,'st1');return;}
   if(!hasAI()){$('st2').textContent=SERVER?'먼저 구글 계정으로 들어와 주세요. ① 쓰기 탭 맨 위에 있습니다.':'아직 서버가 연결되지 않았습니다. 관리자에게 문의해 주세요.';$('st2').className='status err';return;}
   const len=extra&&extra.len?extra.len:f.len;
   const secs=Math.max(12,Math.round(len/45));
@@ -1015,8 +1026,12 @@ async function make(extra){
   catch(e){$('draft').textContent=old;pg.done(false);
     $('st2').textContent='실패: '+(e&&e.message||e);$('st2').className='status err';}
 }
-$('btnGo').onclick=()=>{const v=validate(form());
-  if(v){$('st1').textContent=v;$('st1').className='status err';return;}
+$('btnGo').onclick=()=>{
+  const v=validate(form());
+  if(v){blockAt(v,'st1');return;}
+  if(SERVER&&!idToken){
+    $('st1').textContent='먼저 맨 위에서 참가 코드를 넣고 구글 계정으로 들어와 주세요.';
+    $('st1').className='status err';goStep(1);return;}
   gotab('p2');window.scrollTo({top:0,behavior:'smooth'});make();};
 $('rw_len').oninput=e=>$('rwLenLabel').textContent=e.target.value;
 $('btnRewriteOpen').onclick=()=>{
