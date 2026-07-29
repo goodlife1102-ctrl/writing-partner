@@ -93,7 +93,7 @@ th{background:var(--panel);font-weight:600}
 </head>
 <body>
 <div class="wrap">
-<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-12</small></h1>
+<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-17</small></h1>
 
 <div class="tabs">
   <button class="tab on" data-p="p1">① 쓰기</button>
@@ -112,17 +112,22 @@ th{background:var(--panel);font-weight:600}
       <h2 style="margin:0">시작하기</h2>
       <span class="count" id="meState"></span>
     </div>
-    <p class="desc" style="margin:6px 0 12px">참가 코드를 넣고 구글 계정으로 들어오세요.</p>
+    <p class="desc" style="margin:6px 0 12px" id="loginDesc">참가 코드를 넣고 카카오로 시작하세요.</p>
     <div id="enterRow">
       <div class="field hidden" id="codeField" style="max-width:280px">
         <label>참가 코드</label>
         <input type="text" id="f_code" placeholder="예: 1022한겨레">
+      </div>
+      <div class="row" id="snsRow" style="margin-bottom:10px">
+        <button class="btn big hidden" id="btnKakao"
+          style="background:#FEE500;border-color:#FEE500;color:#191600;font-size:15px;padding:13px 22px">카카오로 시작하기</button>
       </div>
       <div id="gbtn"></div>
       <div id="webviewWarn" class="hidden" style="border:1px solid var(--warn);background:#fdf8ef;
         border-radius:9px;padding:12px 13px;margin-top:10px;font-size:13px;line-height:1.65">
         <b>지금 화면에서는 구글 로그인이 열리지 않습니다.</b><br>
         카카오톡이나 인스타그램 같은 앱 안에서 열린 화면이라 구글이 로그인을 막습니다.
+        위의 카카오 버튼을 쓰시면 그대로 들어오실 수 있습니다.
         오른쪽 위 또는 아래의 메뉴 버튼을 눌러 <b>다른 브라우저로 열기</b>를 고르시면 됩니다.
         <div class="row" style="margin-top:9px">
           <button class="btn grey sm" id="btnCopyUrl">주소 복사</button>
@@ -722,10 +727,16 @@ const SERVER=((window.WB_CONFIG&&window.WB_CONFIG.SERVER)||'').replace(/\/+$/,''
 
 /* ---------- 서버 방식 (참가 코드 + 구글 로그인) ---------- */
 let idToken=localStorage.getItem('wb_token')||'', entryCode=localStorage.getItem('wb_code')||'', me=null;
+let provider=localStorage.getItem('wb_prov')||'google';
 async function srv(path,body){
   const r=await fetch(SERVER+path,{method:'POST',headers:{'content-type':'application/json'},
-    body:JSON.stringify({...(body||{}),idToken,code:entryCode})});
+    body:JSON.stringify({...(body||{}),idToken,provider,code:entryCode})});
   return r.json();
+}
+const REDIRECT=location.origin+location.pathname;
+function saveLogin(tok,via){
+  idToken=tok;provider=via;
+  localStorage.setItem('wb_token',tok);localStorage.setItem('wb_prov',via);
 }
 function paintMe(){
   if(!me){$('meRow').classList.add('hidden');$('enterRow').classList.remove('hidden');
@@ -786,11 +797,12 @@ async function callAI(prompt,kind){
     $('stLogin').textContent='';$('stLogin').className='status';
     if(cfg.notice){$('noticeCard').classList.remove('hidden');$('noticeText').textContent=cfg.notice;}
     if(cfg.needCode&&!PRO){$('codeField').classList.remove('hidden');$('f_code').value=entryCode;}
-    if(!cfg.clientId){$('stLogin').textContent='로그인 설정이 아직 준비되지 않았습니다. 관리자에게 문의해 주세요.';
+    if(!cfg.clientId&&!cfg.kakaoKey&&!cfg.naverId){
+      $('stLogin').textContent='로그인 설정이 아직 준비되지 않았습니다. 관리자에게 문의해 주세요.';
       $('stLogin').className='status err';return;}
     const ua=navigator.userAgent||'';
     const inApp=/KAKAOTALK|KAKAOSTORY|FBAN|FBAV|FB_IAB|Instagram|Line\/|NAVER\(inapp|DaumApps|; wv\)/i.test(ua);
-    if(inApp){
+    if(inApp&&!cfg.kakaoKey&&!cfg.naverId){
       $('webviewWarn').classList.remove('hidden');
       $('btnCopyUrl').onclick=async()=>{
         try{await navigator.clipboard.writeText(location.href.split('?')[0]);
@@ -798,21 +810,53 @@ async function callAI(prompt,kind){
         catch(e){$('copyUrlMsg').textContent='복사가 막혔습니다. 주소창을 길게 눌러 복사해 주세요.';}
       };
     }
+    /* 카카오·네이버 로그인 */
+    const kakaoOn=!!cfg.kakaoKey;
+    if(kakaoOn&&!PRO)$('gbtn').classList.add('hidden');
+    if(kakaoOn){
+      $('btnKakao').classList.remove('hidden');
+      $('btnKakao').onclick=()=>{
+        entryCode=$('f_code').value.trim();localStorage.setItem('wb_code',entryCode);
+        location.href='https://kauth.kakao.com/oauth/authorize?response_type=code'+
+          '&client_id='+encodeURIComponent(cfg.kakaoKey)+
+          '&redirect_uri='+encodeURIComponent(REDIRECT)+'&state=kakao';
+      };
+    }
+
+    /* 로그인하고 돌아왔을 때 */
+    const qs=new URLSearchParams(location.search);
+    const code=qs.get('code'), st=qs.get('state');
+    if(code&&(st==='kakao'||st==='naver')){
+      $('stLogin').textContent='로그인하는 중입니다…';$('stLogin').className='status';
+      const r=await (await fetch(SERVER+'/api/auth',{method:'POST',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({provider:st,code,state:st,redirectUri:REDIRECT})})).json().catch(()=>({}));
+      history.replaceState({},'',REDIRECT);
+      if(r&&r.ok&&r.token){saveLogin(r.token,st);await enter();}
+      else{$('stLogin').textContent=(r&&r.error)||'로그인에 실패했습니다. 다시 시도해 주세요.';
+        $('stLogin').className='status err';}
+    }
+
     let tries=0;
     const boot=()=>{
+      if(!cfg.clientId)return;
+      if(kakaoOn&&!PRO)return;
       if(!(window.google&&google.accounts&&google.accounts.id)){
         if(++tries>40){
-          $('stLogin').textContent='구글 로그인 창을 불러오지 못했습니다. 크롬이나 사파리에서 다시 열어 주세요.';
-          $('stLogin').className='status err';
-          $('webviewWarn').classList.remove('hidden');return;}
+          if(!kakaoOn){
+            $('stLogin').textContent='구글 로그인 창을 불러오지 못했습니다. 크롬이나 사파리에서 다시 열어 주세요.';
+            $('stLogin').className='status err';
+            $('webviewWarn').classList.remove('hidden');}
+          return;}
         return setTimeout(boot,300);}
       google.accounts.id.initialize({client_id:cfg.clientId,callback:res=>{
-        idToken=res.credential;localStorage.setItem('wb_token',idToken);enter();}});
+        saveLogin(res.credential,'google');enter();}});
       google.accounts.id.renderButton($('gbtn'),{theme:'outline',size:'large',text:'signin_with',locale:'ko'});
     };boot();
     if(idToken)enter();
   })();
-  $('btnLogout').onclick=()=>{me=null;idToken='';localStorage.removeItem('wb_token');paintMe();};
+  $('btnLogout').onclick=()=>{me=null;idToken='';provider='google';
+    localStorage.removeItem('wb_token');localStorage.removeItem('wb_prov');paintMe();};
 })();
 
 /* ================= 탭·위저드 ================= */
