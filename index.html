@@ -940,6 +940,51 @@ ${pl.map((p,i)=>`${i+3}) ${p} 원고`).join('\n')}
 ${pl.length+3}) 자가 점검`;
 }
 
+/* 조용히 멈추는 일이 없도록 */
+window.addEventListener('error',function(){
+  const b=document.getElementById('st2');
+  if(b&&!/실패|오류/.test(b.textContent||'')){
+    b.textContent='화면에 문제가 생겨 멈췄습니다. 새로고침한 뒤 다시 눌러 주세요.';
+    b.className='status err';}
+});
+
+/* ================= 진행 막대 ================= */
+function startProg(id,secs,label){
+  const el=document.getElementById(id);
+  if(!el)return{step(){},done(){}};
+  const steps=Array.isArray(label)?label.slice():[label||'만드는 중…'];
+  el.innerHTML=
+    '<div class="row spread" style="margin-bottom:3px">'+
+      '<span class="count" data-l></span><span class="count" data-p>0%</span></div>'+
+    '<div class="pbar"><i></i></div>';
+  const bar=el.querySelector('.pbar i'), pv=el.querySelector('[data-p]'), lv=el.querySelector('[data-l]');
+  const t0=Date.now(), ms=Math.max(4,secs)*1000;
+  let timer=null, stopped=false;
+  lv.textContent=steps[0];
+  const tick=()=>{
+    if(stopped)return;
+    const r=Math.min(1,(Date.now()-t0)/ms);
+    const pct=Math.round((1-Math.pow(1-r,2.2))*93);
+    bar.style.width=pct+'%';
+    pv.textContent=pct+'%';
+    const i=Math.min(steps.length-1,Math.floor(r*steps.length));
+    if(lv.textContent!==steps[i])lv.textContent=steps[i];
+    timer=setTimeout(tick,180);
+  };
+  tick();
+  return{
+    step(t){if(!stopped)lv.textContent=t;},
+    done(ok,msg){
+      stopped=true; clearTimeout(timer);
+      bar.style.width='100%';
+      bar.style.background=ok?'var(--ok)':'var(--err)';
+      lv.textContent=msg||(ok?'완료':'멈췄습니다');
+      lv.style.color=ok?'var(--ok)':'var(--err)';
+      pv.textContent=ok?'100%':'';
+      setTimeout(()=>{if(el)el.innerHTML='';},ok?1500:2800);
+    }};
+}
+
 /* ================= 생성 ================= */
 async function make(extra){
   const f=form(),v=validate(f);
@@ -947,7 +992,11 @@ async function make(extra){
   if(!hasAI()){$('st2').textContent=SERVER?'먼저 구글 계정으로 들어와 주세요. ① 쓰기 탭 맨 위에 있습니다.':'아직 서버가 연결되지 않았습니다. 관리자에게 문의해 주세요.';$('st2').className='status err';return;}
   const len=extra&&extra.len?extra.len:f.len;
   const secs=Math.max(12,Math.round(len/45));
-  const pg=startProg('prog2',secs,'쓰는 중…');
+  const phases=['자료와 조건을 읽는 중…','초안을 쓰는 중…'];
+  if(f.extra.includes('aeo'))phases.push('AEO 적용 추가 수정…');
+  if(f.extra.includes('human'))phases.push('휴머나이즈 추가 수정…');
+  phases.push('마무리 다듬는 중…');
+  const pg=startProg('prog2',secs,phases);
   const old=$('draft').textContent;
   $('draft').textContent='';
   let p=core(f);
@@ -968,7 +1017,7 @@ async function make(extra){
 }
 $('btnGo').onclick=()=>{const v=validate(form());
   if(v){$('st1').textContent=v;$('st1').className='status err';return;}
-  gotab('p2');make();};
+  gotab('p2');window.scrollTo({top:0,behavior:'smooth'});make();};
 $('rw_len').oninput=e=>$('rwLenLabel').textContent=e.target.value;
 $('btnRewriteOpen').onclick=()=>{
   $('rw_len').value=form().len;$('rwLenLabel').textContent=form().len;
