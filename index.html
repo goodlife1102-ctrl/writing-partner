@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>스피치라이터의 5분 완성 글쓰기 파트너</title>
+<title>스피치라이터의 5분 완성 글쓰기</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="config.js"></script>
 <style>
 :root{color-scheme:light;--bg:#fff;--panel:#f7f6f3;--line:#e3e0da;--ink:#1f1e1c;--sub:#6b675f;
   --accent:#c15f3c;--soft:#f5e9e3;--ok:#2f7d5c;--warn:#b8791f;--err:#b23b3b}
@@ -100,22 +102,29 @@ th{background:var(--panel);font-weight:600}
 
 <!-- ① 쓰기 -->
 <div class="page on" id="p1">
-  <div class="card hidden" id="keyCard">
+  <div class="card hidden" id="noticeCard"><p class="desc" id="noticeText" style="margin:0"></p></div>
+
+  <div class="card hidden" id="loginCard">
     <div class="row spread">
-      <h2 style="margin:0">시작하기 전에 — API 키 한 번만 넣기</h2>
-      <span class="count" id="keyState"></span>
+      <h2 style="margin:0">시작하기</h2>
+      <span class="count" id="meState"></span>
     </div>
-    <p class="desc" style="margin:6px 0 12px">이 사이트는 글을 만들 때 Claude를 부릅니다. 그 요금은 각자의 키로 청구되므로 본인 키가 필요합니다.
-    키는 <b>이 브라우저에만</b> 저장되고 어디로도 전송되지 않습니다.</p>
-    <div class="row">
-      <input type="password" id="f_key" placeholder="sk-ant-..." style="flex:1;min-width:220px">
-      <button class="btn sm" id="btnKeySave">저장</button>
-      <button class="btn ghost sm" id="btnKeyTest">연결 확인</button>
-      <button class="btn grey sm" id="btnKeyClear">지우기</button>
+    <p class="desc" style="margin:6px 0 12px">강의에서 받은 참가 코드를 넣고 구글 계정으로 들어오시면 됩니다.
+    API 키도 결제도 필요 없습니다. 저장되는 것은 이메일과 이름, 그리고 몇 번 쓰셨는지뿐입니다.</p>
+    <div id="enterRow">
+      <div class="field hidden" id="codeField" style="max-width:280px">
+        <label>참가 코드</label>
+        <input type="text" id="f_code" placeholder="예: 1022한겨레">
+      </div>
+      <div id="gbtn"></div>
     </div>
-    <div class="status" id="stKey" style="margin-top:8px"></div>
-    <p class="hintline">키가 없으시면 console.anthropic.com 에서 계정을 만들고 API Keys 메뉴에서 발급받으세요. 글 한 편에 수십 원 수준입니다.</p>
+    <div class="row hidden" id="meRow" style="margin-top:6px">
+      <span class="count" id="meLine"></span>
+      <button class="btn grey sm" id="btnLogout">로그아웃</button>
+    </div>
+    <div class="status" id="stLogin" style="margin-top:8px"></div>
   </div>
+
   <div class="steps">
     <div class="stp on" data-s="0">1. 왜<b>배경·목적</b></div>
     <div class="stp" data-s="1">2. 무엇을<b>주제·자료</b></div>
@@ -127,7 +136,7 @@ th{background:var(--panel);font-weight:600}
     <div class="card">
       <div class="row spread" style="margin-bottom:4px">
         <h2 style="margin:0">왜 쓰는가</h2>
-        <button class="btn grey sm" id="btnLoad" title="마지막에 저장한 설정을 되돌립니다. 따로 저장하지 않았어도 직전 작업 내용이 자동으로 보관됩니다.">기존 설정 불러오기</button>
+        <button class="btn grey sm" id="btnLoad" title="지난번 설정을 그대로 되돌립니다.">기존 설정 불러오기</button>
       </div>
       <p class="desc">쓰는 이유를 분명히 하면 글의 방향과 시점이 뚜렷해집니다.</p>
       <div class="field"><label>배경 <span class="hint">왜 지금 이 글을 쓰게 됐는가</span></label>
@@ -232,8 +241,8 @@ th{background:var(--panel);font-weight:600}
         </div></div>
       <div class="field"><label>추가 기준 <span class="hint">켠 기준만 집필과 점검에 적용됩니다</span></label>
         <div class="chips" id="extraChips">
-          <button class="chip" data-v="aeo">AEO — AI 검색에 인용되게</button>
-          <button class="chip" data-v="human">휴머나이즈 — AI 티 지우기</button>
+          <button class="chip" data-v="aeo" title="AI 답변에 인용되는 확률을 높여줍니다.">AEO — AI 검색에 인용되게</button>
+          <button class="chip" data-v="human" title="AI가 쓴 티를 줄여줍니다.">휴머나이즈 — AI 티 지우기</button>
         </div></div>
     </div>
     <div class="row spread"><button class="btn grey" data-go="1">← 이전</button><button class="btn" data-go="3">다음 →</button></div>
@@ -308,9 +317,9 @@ th{background:var(--panel);font-weight:600}
     <p class="desc">고른 전개·마무리 방식에 맞는 기준으로만 검사합니다.</p>
     <div id="checks"></div>
     <div class="row" style="margin-top:14px">
-      <button class="btn ghost sm" id="btnFix">보완 항목 고쳐쓰기</button>
-      <button class="btn grey sm" id="btnFixAeo">AEO 적용 추가 수정</button>
-      <button class="btn grey sm" id="btnFixHum">휴머나이즈 추가 수정</button>
+      <button class="btn ghost sm" id="btnFix" title="점검에서 보완으로 나온 항목만 고칩니다.">보완 항목 고쳐쓰기</button>
+      <button class="btn grey sm" id="btnFixAeo" title="AI 답변에 인용되는 확률을 높여줍니다.">AEO 적용 추가 수정</button>
+      <button class="btn grey sm" id="btnFixHum" title="AI가 쓴 티를 줄여줍니다.">휴머나이즈 추가 수정</button>
     </div>
     <p class="hintline">위 세 가지는 자가 점검과 별개로, 지금 본문을 각 기준에 맞춰 다시 손보는 기능입니다. 고친 문장은 본문에 굵게 표시됩니다.</p>
     <div id="prog2b"></div>
@@ -344,7 +353,7 @@ th{background:var(--panel);font-weight:600}
     <div class="row">
       <button class="btn big" id="btnNow">바로 발행</button>
       <button class="btn ghost big" id="btnLaterOpen">예약 발행</button>
-      <button class="btn grey" id="btnDraftOnly" title="각 매체의 글쓰기 창을 열어 본문만 넣어 둡니다. 게시 버튼은 누르지 않으므로 아무에게도 보이지 않습니다. 눈으로 확인한 뒤 직접 올리고 싶을 때 씁니다.">글만 채워두기</button>
+      <button class="btn grey" id="btnDraftOnly" title="본문만 넣어 두고 게시하지 않습니다.">글만 채워두기</button>
     </div>
     <div class="status" id="st4" style="margin-top:10px"></div>
     <div id="pubSteps"></div>
@@ -685,79 +694,79 @@ async function copy(t,el,msg,btn){
 const setCount=(e,t)=>e.innerHTML=`공백포함 <b>${alen(t)}</b>자 · 공백제외 ${clen(t)}자`;
 const txtOf=r=>(typeof r==='string')?r:(r&&(r.text||r.content||JSON.stringify(r)))||'';
 const inCowork=()=>!!(window.cowork&&window.cowork.askClaude);
-const KEYSTORE='writebot_key';
-const apiKey=()=>localStorage.getItem(KEYSTORE)||'';
-const hasAI=()=>inCowork()||!!apiKey();
-async function callAI(prompt){
-  if(inCowork())return txtOf(await window.cowork.askClaude(prompt,[]));
-  const key=apiKey();
-  if(!key)throw new Error('API 키가 없습니다. ① 쓰기 탭 맨 위에서 키를 넣어 주세요.');
-  const r=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'content-type':'application/json','x-api-key':key,
-      'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-5',max_tokens:8000,
-      messages:[{role:'user',content:prompt}]})});
-  if(!r.ok){
-    const t=await r.text();
-    if(r.status===401)throw new Error('키가 올바르지 않습니다. 다시 확인해 주세요.');
-    if(r.status===429)throw new Error('요청이 몰렸습니다. 잠시 뒤 다시 시도해 주세요.');
-    throw new Error(`${r.status} ${t.slice(0,160)}`);
-  }
-  const j=await r.json();
-  return (j.content||[]).map(c=>c.text||'').join('');
-}
-/* 키 입력 UI — 코워크 밖에서만 보인다 */
-(function(){
-  if(inCowork())return;
-  $('keyCard').classList.remove('hidden');
-  const paint=()=>{const k=apiKey();
-    $('keyState').textContent=k?`저장됨 · ${k.slice(0,7)}…${k.slice(-4)}`:'아직 없음';
-    $('f_key').value=k?'':'';};
-  paint();
-  $('btnKeySave').onclick=()=>{const v=$('f_key').value.trim();
-    if(!v){$('stKey').textContent='키를 붙여넣어 주세요.';$('stKey').className='status err';return;}
-    localStorage.setItem(KEYSTORE,v);$('f_key').value='';paint();
-    $('stKey').textContent='저장했습니다. 연결 확인을 눌러 보세요.';$('stKey').className='status ok';};
-  $('btnKeyClear').onclick=()=>{localStorage.removeItem(KEYSTORE);paint();
-    $('stKey').textContent='키를 지웠습니다.';$('stKey').className='status';};
-  $('btnKeyTest').onclick=async()=>{
-    $('stKey').textContent='확인 중…';$('stKey').className='status';
-    try{await callAI('안녕이라고만 답해 주세요.');
-      $('stKey').textContent='연결됐습니다. 이제 글을 만들 수 있습니다.';$('stKey').className='status ok';}
-    catch(e){$('stKey').textContent='실패: '+(e&&e.message||e);$('stKey').className='status err';}};
-})();
-const strip=s=>s.replace(/^#{1,6}\s+/gm,'').replace(/\*\*(.+?)\*\*/g,'$1').replace(/^\s*[-*+]\s+/gm,'').trim();
-const gotab=p=>document.querySelector(`[data-p="${p}"]`).click();
-const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const hasAI=()=>inCowork()||(!!SERVER&&!!idToken);
+/* 서버 주소는 config.js 에서 정합니다. 이 파일은 손대지 않아도 됩니다. */
+const SERVER=((window.WB_CONFIG&&window.WB_CONFIG.SERVER)||'').replace(/\/+$/,'');
 
-/* 진행 막대 */
-function startProg(id,secs,label){
-  const el=$(id);
-  el.innerHTML=`<div class="pbar"><i></i></div><span class="count pmsg">${label} 0%</span>`;
-  const bar=el.querySelector('i'),msg=el.querySelector('.pmsg'),t0=Date.now();
-  const iv=setInterval(()=>{
-    const e=(Date.now()-t0)/1000;
-    const p=Math.min(93,100*(1-Math.exp(-e/(secs*0.5))));
-    bar.style.width=p.toFixed(0)+'%';
-    msg.textContent=`${label} ${p.toFixed(0)}% · 약 ${Math.max(1,Math.ceil(secs-e))}초 남음`;
-  },200);
-  return{done(ok,txt){clearInterval(iv);bar.style.width='100%';
-    bar.style.background=ok?'var(--ok)':'var(--err)';
-    msg.textContent=txt||(ok?'완료 100%':'실패');
-    if(ok)setTimeout(()=>{el.innerHTML='';},2500);}};
+/* ---------- 서버 방식 (참가 코드 + 구글 로그인) ---------- */
+let idToken=localStorage.getItem('wb_token')||'', entryCode=localStorage.getItem('wb_code')||'', me=null;
+async function srv(path,body){
+  const r=await fetch(SERVER+path,{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({...(body||{}),idToken,code:entryCode})});
+  return r.json();
 }
-/* 바뀐 문장 굵게 */
-function markDiff(oldT,newT){
-  const norm=s=>s.replace(/\s+/g,' ').trim();
-  const old=new Set(oldT.split(/(?<=[.!?？])\s+|\n+/).map(norm).filter(Boolean));
-  return newT.split('\n').map(line=>{
-    if(!line.trim())return '';
-    return line.split(/(?<=[.!?？])\s+/).map(s=>{
-      const t=norm(s); if(!t)return esc(s);
-      return old.has(t)?esc(s):'<b>'+esc(s)+'</b>';}).join(' ');
-  }).join('\n');
+function paintMe(){
+  if(!me){$('meRow').classList.add('hidden');$('enterRow').classList.remove('hidden');
+    $('meState').textContent='';return;}
+  $('enterRow').classList.add('hidden');$('meRow').classList.remove('hidden');
+  $('meState').textContent=me.name+'님';
+  $('meLine').textContent=`오늘 ${me.used} / ${me.limit}회 사용 · 남은 횟수 ${me.left}회`;
+  $('stLogin').textContent=me.left>0?'':'오늘 몫을 다 쓰셨습니다. 글을 만들면 지시문이 자동으로 복사되니 무료 AI에 붙여넣어 쓰시면 됩니다.';
+  $('stLogin').className=me.left>0?'status':'status err';
 }
+async function enter(){
+  if(!idToken)return;
+  entryCode=$('f_code').value.trim();
+  const r=await srv('/api/enter',{});
+  if(!r.ok){me=null;paintMe();$('stLogin').textContent=r.error;$('stLogin').className='status err';
+    if(/로그인/.test(r.error||'')){idToken='';localStorage.removeItem('wb_token');}
+    return;}
+  localStorage.setItem('wb_code',entryCode);
+  me=r;paintMe();
+}
+async function callAI(prompt,kind){
+  if(inCowork())return txtOf(await window.cowork.askClaude(prompt,[]));
+  if(SERVER){
+    if(!idToken)throw new Error('먼저 구글 계정으로 들어와 주세요. ① 쓰기 탭 맨 위에 있습니다.');
+    const r=await srv('/api/generate',{prompt,kind:kind||'draft'});
+    if(!r.ok){
+      if(/코드|로그인|제한/.test(r.error||'')){me=null;paintMe();gotab('p1');goStep(0);
+        $('stLogin').textContent=r.error;$('stLogin').className='status err';}
+      throw new Error(r.error||'실패했습니다.');
+    }
+    if(r.fallback){
+      await copy(r.prompt,null,'');
+      me&&(me.used=r.used,me.left=r.left);paintMe();
+      throw new Error(r.message);
+    }
+    me&&(me.used=r.used,me.left=r.left);paintMe();
+    return r.text;
+  }
+  throw new Error('아직 서버가 연결되지 않았습니다. 관리자에게 문의해 주세요.');
+}
+/* 입장 UI */
+(function(){
+  if(inCowork()||!SERVER)return;
+  $('loginCard').classList.remove('hidden');
+  (async()=>{
+    let cfg={};
+    try{cfg=await (await fetch(SERVER+'/api/config')).json();}
+    catch(e){$('stLogin').textContent='서버에 닿지 못했습니다. 잠시 뒤 다시 열어 주세요.';
+      $('stLogin').className='status err';return;}
+    if(cfg.notice){$('noticeCard').classList.remove('hidden');$('noticeText').textContent=cfg.notice;}
+    if(cfg.needCode){$('codeField').classList.remove('hidden');$('f_code').value=entryCode;}
+    if(!cfg.clientId){$('stLogin').textContent='로그인 설정이 아직 준비되지 않았습니다. 관리자에게 문의해 주세요.';
+      $('stLogin').className='status err';return;}
+    const boot=()=>{
+      if(!(window.google&&google.accounts&&google.accounts.id))return setTimeout(boot,300);
+      google.accounts.id.initialize({client_id:cfg.clientId,callback:res=>{
+        idToken=res.credential;localStorage.setItem('wb_token',idToken);enter();}});
+      google.accounts.id.renderButton($('gbtn'),{theme:'outline',size:'large',text:'signin_with',locale:'ko'});
+    };boot();
+    if(idToken)enter();
+  })();
+  $('btnLogout').onclick=()=>{me=null;idToken='';localStorage.removeItem('wb_token');paintMe();};
+})();
 
 /* ================= 탭·위저드 ================= */
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
@@ -932,7 +941,7 @@ ${pl.length+3}) 자가 점검`;
 async function make(extra){
   const f=form(),v=validate(f);
   if(v){$('st1').textContent=v;$('st1').className='status err';$('st2').textContent=v;$('st2').className='status err';return;}
-  if(!hasAI()){$('st2').textContent='API 키를 먼저 넣어 주세요. ① 쓰기 탭 맨 위에 있습니다.';$('st2').className='status err';return;}
+  if(!hasAI()){$('st2').textContent=SERVER?'먼저 구글 계정으로 들어와 주세요. ① 쓰기 탭 맨 위에 있습니다.':'아직 서버가 연결되지 않았습니다. 관리자에게 문의해 주세요.';$('st2').className='status err';return;}
   const len=extra&&extra.len?extra.len:f.len;
   const secs=Math.max(12,Math.round(len/45));
   const pg=startProg('prog2',secs,'쓰는 중…');
@@ -944,7 +953,7 @@ async function make(extra){
     if(extra.tone)p+=`\n\n[이번에 손볼 톤앤매너]\n${extra.tone}`;
     if(extra.add)p+=`\n\n[이번에 반드시 넣을 내용]\n${extra.add}`;
   }
-  try{const r=await callAI(p+'\n\n지금 바로 제목과 본문만 출력하십시오.');
+  try{const r=await callAI(p+'\n\n지금 바로 제목과 본문만 출력하십시오.','draft');
     const t=strip(r);
     if(extra&&old.length>80)$('draft').innerHTML=markDiff(old,t); else $('draft').textContent=t;
     setCount($('cnt2'),$('draft').textContent);renderChecks();
@@ -1036,7 +1045,7 @@ async function rewrite(kind){
   if(!hasAI()){copy(`${head}\n\n[유지할 것]\n${ENDING[f.ending].r}\n\n[원문]\n${b}`,$('st2b'),'고쳐쓰기 프롬프트를 복사했습니다.');return;}
   const pg=startProg('prog2b',Math.max(10,Math.round(b.length/60)),'고치는 중…');
   $('st2b').textContent='';
-  try{const r=await callAI(`${head}\n\n[유지할 것]\n${ENDING[f.ending].r}\n사실과 수치는 바꾸지 않는다.\n\n[원문]\n${b}\n\n고친 본문만 출력하십시오.`);
+  try{const r=await callAI(`${head}\n\n[유지할 것]\n${ENDING[f.ending].r}\n사실과 수치는 바꾸지 않는다.\n\n[원문]\n${b}\n\n고친 본문만 출력하십시오.`,'fix');
     const t=strip(r);
     $('draft').innerHTML=markDiff(b,t);
     setCount($('cnt2'),$('draft').textContent);renderChecks();pg.done(true,'완료 100%');
@@ -1086,7 +1095,7 @@ async function conv(k){
   if(!hasAI()){copy(p,null);el.textContent='이 화면에서는 바로 만들 수 없어 변환 프롬프트를 복사했습니다.';return;}
   const pg=startProg('prog_'+k,Math.max(8,Math.round(tune[k].len/50)),'쓰는 중…');
   el.textContent='';
-  try{const r=await callAI(p);el.textContent=strip(r);
+  try{const r=await callAI(p,k);el.textContent=strip(r);
     setCount($('cnt_'+k),el.textContent);pg.done(true,'완료 100%');}
   catch(e){el.textContent='실패: '+(e&&e.message||e);pg.done(false);}
 }
@@ -1263,7 +1272,7 @@ ${list}
   if(!hasAI()){copy(p,$('st5'),'주제 제안 프롬프트를 복사했습니다. 대화창에 붙여넣으세요.');
     $('sugBox').textContent='이 화면에서는 바로 만들 수 없어 프롬프트를 복사했습니다.';return;}
   $('sugBox').textContent='내역을 훑는 중…';
-  try{const r=await callAI(p);$('sugBox').textContent=strip(r);}
+  try{const r=await callAI(p,'suggest');$('sugBox').textContent=strip(r);}
   catch(e){$('sugBox').textContent='실패: '+(e&&e.message||e);}
 };
 const HEAD='번호,발행일자,발행시각,매체,제목,주제,분량,주소,상태,비고';

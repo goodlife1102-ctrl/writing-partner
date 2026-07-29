@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>관리자 — 5분 완성 글쓰기</title>
+<script src="config.js"></script>
+<style>
+:root{color-scheme:light;--bg:#fff;--panel:#f7f6f3;--line:#e3e0da;--ink:#1f1e1c;--sub:#6b675f;
+  --accent:#c15f3c;--soft:#f5e9e3;--ok:#2f7d5c;--warn:#b8791f;--err:#b23b3b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-size:14px;line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 18px 60px}
+h1{font-size:19px;margin:0 0 14px}
+h2{font-size:14px;margin:0 0 4px}
+.card{border:1px solid var(--line);border-radius:11px;padding:16px;background:var(--panel);margin-bottom:14px}
+.desc{font-size:12.5px;color:var(--sub);margin:0 0 14px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.btn{padding:8px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;
+  cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
+.btn.ghost{background:#fff;color:var(--accent)}
+.btn.grey{background:#fff;color:var(--sub);border-color:var(--line)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.danger{background:#fff;color:var(--err);border-color:var(--err)}
+input,select{padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;
+  font-family:inherit;font-size:13px;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+label{display:block;font-size:12px;font-weight:600;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;background:#fff;vertical-align:middle}
+th{background:var(--panel);font-weight:600}
+.count{font-size:12px;color:var(--sub)}
+.status{font-size:12.5px;color:var(--sub);min-height:18px}
+.status.ok{color:var(--ok)}.status.err{color:var(--err)}
+.hidden{display:none!important}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:700px){.kpi{grid-template-columns:1fr 1fr}}
+.kpi div{background:#fff;border:1px solid var(--line);border-radius:9px;padding:12px}
+.kpi b{display:block;font-size:22px;color:var(--accent);line-height:1.2}
+.kpi span{font-size:12px;color:var(--sub)}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.note{font-size:12.5px;color:var(--sub);background:#fff;border-left:3px solid var(--accent);
+  padding:10px 12px;border-radius:0 7px 7px 0;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>관리자 <span class="count" id="who"></span></h1>
+
+<div class="card" id="loginCard">
+  <h2>관리자 비밀번호</h2>
+  <p class="desc">서버에 등록해 둔 관리자 비밀번호를 넣어 주세요.</p>
+  <div class="row">
+    <input type="password" id="pw" placeholder="비밀번호" style="flex:1;min-width:200px">
+    <button class="btn" id="btnLogin">들어가기</button>
+  </div>
+  <div class="status" id="stLogin" style="margin-top:10px"></div>
+</div>
+
+<div id="main" class="hidden">
+  <div class="card">
+    <div class="row spread" style="margin-bottom:12px">
+      <h2 style="margin:0">오늘 현황</h2>
+      <div class="row"><button class="btn grey sm" id="btnReload">새로고침</button>
+      <button class="btn grey sm" id="btnLogout">나가기</button></div>
+    </div>
+    <div class="kpi">
+      <div><b id="kToday">0</b><span>오늘 생성</span><div class="bar"><i id="kBar" style="width:0"></i></div></div>
+      <div><b id="kCap">0</b><span>오늘 상한</span></div>
+      <div><b id="kUsers">0</b><span>이용자 수</span></div>
+      <div><b id="kState">-</b><span>상태</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>오늘 강의 준비</h2>
+    <p class="desc">강의 전에 이 세 가지만 맞추면 됩니다. 코드를 수강생에게 알려주고, 키를 넣고, 스위치를 켭니다.</p>
+
+    <div style="margin-bottom:14px">
+      <label>① 오늘의 참가 코드 <span class="count">수강생에게 알려줄 비밀번호. 비우면 누구나 입장</span></label>
+      <div class="row">
+        <input type="text" id="s_code" style="flex:1;min-width:180px" placeholder="예: 1022한겨레">
+        <button class="btn sm" id="btnCode">코드 저장</button>
+        <button class="btn grey sm" id="btnCodeNew">새 코드 만들기</button>
+      </div>
+      <p class="count" style="margin:6px 0 0">코드를 바꾸면 옛 코드로 들어와 있던 사람도 즉시 막힙니다.</p>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>② 오늘 쓸 키 <span class="count">사용자에게 내려가지 않습니다</span></label>
+      <div class="row">
+        <select id="s_prov" style="width:120px"><option value="claude">Claude</option><option value="gemini">Gemini</option></select>
+        <input type="password" id="s_key" placeholder="새 키를 넣을 때만 입력" style="flex:1;min-width:200px">
+        <button class="btn sm" id="btnKey">키 저장</button>
+        <span class="count" id="keyHint"></span>
+      </div>
+    </div>
+
+    <div>
+      <label>③ 자동 생성</label>
+      <div class="row">
+        <label style="display:flex;align-items:center;gap:6px;margin:0;font-weight:400">
+          <input type="checkbox" id="s_open" style="width:auto"> 열기
+        </label>
+        <span class="count">끄면 모두 프롬프트 복사 방식으로 바뀝니다. 비용이 즉시 멈춥니다.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>한도와 공지</h2>
+    <div class="grid2">
+      <div><label>오늘 전체 상한 (건)</label><input type="number" id="s_cap" min="0" style="width:100%"></div>
+      <div><label>1인당 하루 횟수</label><input type="number" id="s_user" min="0" style="width:100%"></div>
+      <div><label>모델 이름 <span class="count">비우면 기본값</span></label><input type="text" id="s_model" style="width:100%"></div>
+      <div><label>사이트 공지 <span class="count">비우면 표시 안 함</span></label>
+        <input type="text" id="s_notice" style="width:100%" placeholder="예: 오늘 강의는 오후 5시에 시작합니다"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="btnSave">저장</button>
+    </div>
+    <div class="status" id="stSave" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <div class="row spread" style="margin-bottom:10px">
+      <h2 style="margin:0">이용자 <span class="count" id="uCount"></span></h2>
+      <div class="row">
+        <input type="text" id="uSearch" placeholder="이름·이메일 검색" style="width:180px">
+        <button class="btn grey sm" id="btnCsv">엑셀로 내려받기</button>
+      </div>
+    </div>
+    <div id="userBox"></div>
+  </div>
+
+  <div class="card">
+    <h2>최근 사용 내역</h2>
+    <div id="recentBox"></div>
+  </div>
+
+  <div class="card">
+    <h2>날짜별 건수</h2>
+    <div id="dailyBox"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn grey sm" data-reset="today">오늘 기록 초기화</button>
+      <button class="btn grey sm" data-reset="old">90일 지난 기록 정리</button>
+      <button class="btn danger sm" data-reset="all">전체 기록 삭제</button>
+    </div>
+    <div class="note">오늘 기록 초기화를 누르면 모든 사람의 오늘 사용 횟수가 0으로 돌아갑니다. 강의 중 한도를 한 번에 풀어줄 때 씁니다.</div>
+  </div>
+</div>
+</div>
+
+<script>
+const SERVER=((window.WB_CONFIG&&window.WB_CONFIG.SERVER)||'').replace(/\/+$/,'');
+const $=id=>document.getElementById(id);
+let pw=sessionStorage.getItem('wb_pw')||'', data=null;
+
+async function api(path,body){
+  const r=await fetch(SERVER+path,{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({...(body||{}),pw})});
+  return r.json();
+}
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+async function load(){
+  if(!SERVER){$('stLogin').textContent='config.js 에 서버 주소가 없습니다.';$('stLogin').className='status err';return;}
+  $('stLogin').textContent='확인 중…';$('stLogin').className='status';
+  let d;
+  try{d=await api('/api/admin/overview',{});}
+  catch(e){$('stLogin').textContent='서버에 닿지 못했습니다.';$('stLogin').className='status err';return;}
+  if(!d.ok){$('stLogin').textContent=d.error||'실패했습니다.';$('stLogin').className='status err';
+    sessionStorage.removeItem('wb_pw');return;}
+  sessionStorage.setItem('wb_pw',pw);
+  $('loginCard').classList.add('hidden');$('main').classList.remove('hidden');
+  data=d;render();
+}
+$('btnLogin').onclick=()=>{pw=$('pw').value.trim();load();};
+$('pw').onkeydown=e=>{if(e.key==='Enter')$('btnLogin').click();};
+$('btnReload').onclick=load;
+$('btnLogout').onclick=()=>{sessionStorage.removeItem('wb_pw');location.reload();};
+if(pw)load();
+
+function render(){
+  const s=data.settings;
+  $('kToday').textContent=data.todayTotal;
+  $('kCap').textContent=s.daily_total_cap;
+  $('kUsers').textContent=data.users.length;
+  const open=s.open==='1'&&data.hasKey;
+  $('kState').textContent=open?'열림':(data.hasKey?'잠금':'키 없음');
+  $('kState').style.color=open?'var(--ok)':'var(--err)';
+  $('kBar').style.width=Math.min(100,(data.todayTotal/Math.max(1,Number(s.daily_total_cap)))*100)+'%';
+  $('keyHint').textContent=data.hasKey?`등록됨 ${data.keyHint}${data.keyFromEnv?' (서버 설정값)':''}`:'아직 없음';
+  $('s_cap').value=s.daily_total_cap;$('s_user').value=s.per_user_daily;
+  $('s_prov').value=s.provider;$('s_model').value=s.model;$('s_notice').value=s.notice;
+  $('s_code').value=s.entry_code||'';$('s_open').checked=s.open==='1';$('s_key').value='';
+  renderUsers();
+  $('recentBox').innerHTML=data.recent.length
+    ? '<table><tr><th style="width:28%">이용자</th><th style="width:16%">종류</th><th style="width:24%">시각(UTC)</th><th>글자수</th></tr>'+
+      data.recent.map(r=>`<tr><td>${esc(r.email)}</td><td>${esc(r.kind)}</td><td>${esc(r.at||'')}</td><td>${r.chars||0}</td></tr>`).join('')+'</table>'
+    : '<p class="count">기록이 없습니다.</p>';
+  $('dailyBox').innerHTML=data.daily.length
+    ? '<table><tr><th style="width:30%">날짜</th><th>건수</th></tr>'+
+      data.daily.map(r=>`<tr><td>${esc(r.day)}</td><td>${r.c}</td></tr>`).join('')+'</table>'
+    : '<p class="count">기록이 없습니다.</p>';
+}
+function renderUsers(){
+  const q=$('uSearch').value.trim().toLowerCase();
+  const list=data.users.filter(u=>!q||((u.name||'')+(u.email||'')).toLowerCase().includes(q));
+  $('uCount').textContent=`${list.length}명`;
+  $('userBox').innerHTML=list.length
+    ? '<table><tr><th style="width:18%">이름</th><th style="width:22%">이메일</th><th style="width:8%">오늘</th><th style="width:10%">누적</th><th style="width:14%">추가횟수</th><th style="width:16%">최근 접속</th><th>관리</th></tr>'+
+      list.map(u=>`<tr>
+        <td>${esc(u.name)}${u.blocked?' <span style="color:var(--err)">정지</span>':''}</td>
+        <td class="count">${esc(u.email||'')}</td>
+        <td>${u.todayc||0}</td><td>${u.total||0}</td>
+        <td><input type="number" value="${u.bonus||0}" min="0" style="width:64px" data-bonus="${esc(u.sub)}"></td>
+        <td class="count">${esc((u.last_seen||'').slice(0,16))}</td>
+        <td>
+          <button class="btn grey sm" data-act="bonus" data-sub="${esc(u.sub)}">횟수 저장</button>
+          ${u.blocked?`<button class="btn ghost sm" data-act="unblock" data-sub="${esc(u.sub)}">해제</button>`
+                     :`<button class="btn danger sm" data-act="block" data-sub="${esc(u.sub)}">차단</button>`}
+          <button class="btn danger sm" data-act="delete" data-sub="${esc(u.sub)}">삭제</button>
+        </td></tr>`).join('')+'</table>'
+    : '<p class="count">해당하는 이용자가 없습니다.</p>';
+  $('userBox').querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{
+    const sub=b.dataset.sub,act=b.dataset.act;
+    if(act==='delete'&&!confirm('이 이용자와 기록을 지웁니다. 되돌릴 수 없습니다.'))return;
+    if(act==='block'&&!confirm('이 이용자를 차단합니다.'))return;
+    const value=act==='bonus'?$('userBox').querySelector(`[data-bonus="${sub}"]`).value:null;
+    const r=await api('/api/admin/user',{sub,action:act,value});
+    if(r.ok)load(); else alert(r.error||'실패했습니다.');});
+}
+$('uSearch').oninput=()=>data&&renderUsers();
+
+async function save(extra){
+  const settings={daily_total_cap:$('s_cap').value,per_user_daily:$('s_user').value,
+    provider:$('s_prov').value,model:$('s_model').value.trim(),notice:$('s_notice').value.trim(),
+    entry_code:$('s_code').value.trim(),open:$('s_open').checked?'1':'0',...(extra||{})};
+  const r=await api('/api/admin/settings',{settings});
+  $('stSave').textContent=r.ok?'저장했습니다.':(r.error||'실패했습니다.');
+  $('stSave').className=r.ok?'status ok':'status err';
+  if(r.ok)load();
+}
+$('btnSave').onclick=()=>save();
+$('btnKey').onclick=()=>{const v=$('s_key').value.trim();
+  save(v?{ai_key:v}:{ai_key:'__keep__'});};
+$('btnCode').onclick=()=>save({ai_key:'__keep__'});
+$('btnCodeNew').onclick=()=>{
+  const d=new Date(),p=n=>String(n).padStart(2,'0');
+  const rnd=Math.random().toString(36).slice(2,5).toUpperCase();
+  $('s_code').value=`${p(d.getMonth()+1)}${p(d.getDate())}-${rnd}`;
+  $('stSave').textContent='새 코드를 만들었습니다. 코드 저장을 눌러 적용하세요.';$('stSave').className='status ok';};
+$('s_open').onchange=()=>save({ai_key:'__keep__'});
+$('btnCsv').onclick=()=>{
+  if(!data||!data.users.length)return alert('내려받을 기록이 없습니다.');
+  const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  const rows=[['이름','이메일','오늘','누적','추가횟수','상태','최근접속']].concat(
+    data.users.map(u=>[u.name,u.email||'',u.todayc||0,u.total||0,u.bonus||0,u.blocked?'차단':'정상',(u.last_seen||'').slice(0,16)]));
+  const csv='﻿'+rows.map(r=>r.map(q).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`사용현황_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);};
+document.querySelectorAll('[data-reset]').forEach(b=>b.onclick=async()=>{
+  const w=b.dataset.reset;
+  const msg={today:'오늘 사용 기록을 지웁니다. 모두의 오늘 횟수가 0이 됩니다.',
+    old:'90일 지난 기록을 지웁니다.',all:'모든 이용자와 기록을 지웁니다. 되돌릴 수 없습니다.'}[w];
+  if(!confirm(msg))return;
+  const r=await api('/api/admin/reset',{what:w});
+  if(r.ok)load(); else alert(r.error||'실패했습니다.');});
+</script>
+</body>
+</html>
