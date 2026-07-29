@@ -146,6 +146,7 @@ th{background:var(--panel);font-weight:600}
     <div class="grid2">
       <div><label>오늘 전체 상한 (건)</label><input type="number" id="s_cap" min="0" style="width:100%"></div>
       <div><label>1인당 하루 횟수</label><input type="number" id="s_user" min="0" style="width:100%"></div>
+      <div><label>작가 계정 <span class="count">이 구글 계정은 코드도 한도도 없이 바로 씁니다</span></label><input type="text" id="s_owner" style="width:100%" placeholder="goodlife1102@gmail.com"></div>
       <div><label>Claude 모델 <span class="count">비우면 기본값</span></label><input type="text" id="m_claude" style="width:100%" placeholder="claude-sonnet-5"></div>
       <div><label>Gemini 모델 <span class="count">비우면 기본값</span></label><input type="text" id="m_gemini" style="width:100%" placeholder="gemini-flash-latest"></div>
       <div><label>사이트 공지 <span class="count">비우면 표시 안 함</span></label>
@@ -232,6 +233,7 @@ function render(){
   $('s_cap').value=s.daily_total_cap;$('s_user').value=s.per_user_daily;
   $('s_prov').value=s.provider;$('s_notice').value=s.notice;
   $('m_claude').value=s.claude_model||'';$('m_gemini').value=s.gemini_model||'';
+  $('s_owner').value=s.owner_email||'';
   $('s_code').value=s.entry_code||'';$('s_open').checked=s.open==='1';
   $('k_claude').value='';$('k_gemini').value='';
   renderUsers();
@@ -304,6 +306,7 @@ async function save(extra,where,btn){
   const settings={daily_total_cap:$('s_cap').value,per_user_daily:$('s_user').value,
     provider:$('s_prov').value,notice:$('s_notice').value.trim(),
     claude_model:$('m_claude').value.trim(),gemini_model:$('m_gemini').value.trim(),
+    owner_email:$('s_owner').value.trim(),
     entry_code:$('s_code').value.trim(),open:$('s_open').checked?'1':'0',
     claude_key:'__keep__',gemini_key:'__keep__',...(extra||{})};
   const r=await api('/api/admin/settings',{settings});

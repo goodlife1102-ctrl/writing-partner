@@ -93,7 +93,7 @@ th{background:var(--panel);font-weight:600}
 </head>
 <body>
 <div class="wrap">
-<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-11</small></h1>
+<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-12</small></h1>
 
 <div class="tabs">
   <button class="tab on" data-p="p1">① 쓰기</button>
@@ -732,8 +732,9 @@ function paintMe(){
     $('meState').textContent='';return;}
   $('enterRow').classList.add('hidden');$('meRow').classList.remove('hidden');
   $('meState').textContent=me.name+'님';
-  $('meLine').textContent=`오늘 ${me.used} / ${me.limit}회 사용 · 남은 횟수 ${me.left}회`;
-  $('stLogin').textContent=me.left>0?'':'오늘 몫을 다 쓰셨습니다. 글을 만들면 지시문이 자동으로 복사되니 무료 AI에 붙여넣어 쓰시면 됩니다.';
+  $('meLine').textContent=me.owner?`작가 계정 · 횟수 제한 없음 (오늘 ${me.used}건)`
+    :`오늘 ${me.used} / ${me.limit}회 사용 · 남은 횟수 ${me.left}회`;
+  $('stLogin').textContent=(me.owner||me.left>0)?'':'오늘 몫을 다 쓰셨습니다. 글을 만들면 지시문이 자동으로 복사되니 무료 AI에 붙여넣어 쓰시면 됩니다.';
   $('stLogin').className=me.left>0?'status':'status err';
 }
 async function enter(){
@@ -784,7 +785,7 @@ async function callAI(prompt,kind){
       $('stLogin').className='status err';return;}
     $('stLogin').textContent='';$('stLogin').className='status';
     if(cfg.notice){$('noticeCard').classList.remove('hidden');$('noticeText').textContent=cfg.notice;}
-    if(cfg.needCode){$('codeField').classList.remove('hidden');$('f_code').value=entryCode;}
+    if(cfg.needCode&&!PRO){$('codeField').classList.remove('hidden');$('f_code').value=entryCode;}
     if(!cfg.clientId){$('stLogin').textContent='로그인 설정이 아직 준비되지 않았습니다. 관리자에게 문의해 주세요.';
       $('stLogin').className='status err';return;}
     const ua=navigator.userAgent||'';
