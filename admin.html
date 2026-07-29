@@ -115,7 +115,22 @@ th{background:var(--panel);font-weight:600}
     </div>
 
     <div style="margin-bottom:14px">
-      <label>③ 지금 쓸 AI <span class="count">고르는 즉시 바뀝니다</span></label>
+      <label>③ 로그인 방식 <span class="count">키를 넣은 것만 화면에 나옵니다. 카카오를 넣으면 카카오톡 안에서도 로그인됩니다</span></label>
+      <div class="row">
+        <span class="count" style="width:60px">카카오</span>
+        <input type="text" id="s_kakao" placeholder="REST API 키" style="flex:1;min-width:200px">
+        <input type="password" id="k_kakao_sec" placeholder="보안 시크릿 (안 쓰면 비움)" style="width:210px">
+      </div>
+      <div class="row" style="margin-top:7px">
+        <span class="count" style="width:60px">네이버</span>
+        <input type="text" id="s_naver" placeholder="Client ID" style="flex:1;min-width:200px">
+        <input type="password" id="k_naver_sec" placeholder="Client Secret" style="width:210px">
+      </div>
+      <div class="note">시크릿 칸은 비워두면 기존 값이 그대로 유지됩니다. 구글 로그인은 그대로 함께 쓸 수 있습니다.</div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>④ 지금 쓸 AI <span class="count">고르는 즉시 바뀝니다</span></label>
       <div class="row">
         <select id="s_prov" style="width:140px"><option value="claude">Claude</option><option value="gemini">Gemini</option></select>
         <span class="count" id="provState"></span>
@@ -123,7 +138,7 @@ th{background:var(--panel);font-weight:600}
     </div>
 
     <div>
-      <label>④ 자동 생성</label>
+      <label>⑤ 자동 생성</label>
       <div class="row">
         <label style="display:flex;align-items:center;gap:6px;margin:0;font-weight:400">
           <input type="checkbox" id="s_open" style="width:auto"> 열기
@@ -234,6 +249,8 @@ function render(){
   $('s_prov').value=s.provider;$('s_notice').value=s.notice;
   $('m_claude').value=s.claude_model||'';$('m_gemini').value=s.gemini_model||'';
   $('s_owner').value=s.owner_email||'';
+  $('s_kakao').value=s.kakao_rest_key||'';$('s_naver').value=s.naver_client_id||'';
+  $('k_kakao_sec').value='';$('k_naver_sec').value='';
   $('s_code').value=s.entry_code||'';$('s_open').checked=s.open==='1';
   $('k_claude').value='';$('k_gemini').value='';
   renderUsers();
@@ -307,6 +324,9 @@ async function save(extra,where,btn){
     provider:$('s_prov').value,notice:$('s_notice').value.trim(),
     claude_model:$('m_claude').value.trim(),gemini_model:$('m_gemini').value.trim(),
     owner_email:$('s_owner').value.trim(),
+    kakao_rest_key:$('s_kakao').value.trim(),naver_client_id:$('s_naver').value.trim(),
+    kakao_client_secret:$('k_kakao_sec').value.trim()||'__keep__',
+    naver_client_secret:$('k_naver_sec').value.trim()||'__keep__',
     entry_code:$('s_code').value.trim(),open:$('s_open').checked?'1':'0',
     claude_key:'__keep__',gemini_key:'__keep__',...(extra||{})};
   const r=await api('/api/admin/settings',{settings});
