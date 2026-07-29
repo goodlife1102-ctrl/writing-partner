@@ -93,14 +93,14 @@ th{background:var(--panel);font-weight:600}
 </head>
 <body>
 <div class="wrap">
-<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-8</small></h1>
+<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-10</small></h1>
 
 <div class="tabs">
   <button class="tab on" data-p="p1">① 쓰기</button>
   <button class="tab" data-p="p2">② 초안</button>
   <button class="tab" data-p="p3">③ 매체별 원고</button>
-  <button class="tab" data-p="p4">④ 발행</button>
-  <button class="tab" data-p="p5">⑤ 발행일지</button>
+  <button class="tab hidden" data-p="p4" id="tabPub">④ 발행</button>
+  <button class="tab" data-p="p5" id="tabHist">④ 발행일지</button>
 </div>
 
 <!-- ① 쓰기 -->
@@ -350,7 +350,13 @@ th{background:var(--panel);font-weight:600}
       <button class="chip" data-v="facebook">페이스북</button>
       <button class="chip" data-v="threads">쓰레드</button>
     </div>
-    <div class="row" style="margin-top:12px"><button class="btn" id="btnGenAll">고른 매체 한번에 만들기</button></div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="btnGenAll">선택 매체 전부 쓰기</button></div>
+    <div class="note" id="pubHowto">다 쓰면 각 원고의 <b>복사</b>를 누르고 해당 매체에 붙여넣어 올리시면 됩니다.
+    올린 뒤 아래 <b>발행일지에 기록</b>을 누르면 무엇을 어디에 올렸는지 남습니다.</div>
+    <div class="row" style="margin-top:10px" id="logRow">
+      <button class="btn ghost sm" id="btnLogHere">발행일지에 기록</button>
+      <span class="count" id="stLogHere"></span>
+    </div>
   </div>
   <div id="platCards"></div>
 </div>
@@ -361,9 +367,9 @@ th{background:var(--panel);font-weight:600}
     <h2>발행하기</h2>
     <div id="browserWarn" class="hidden" style="border:1px solid var(--err);background:#fdf3f3;
       border-radius:9px;padding:11px 13px;margin-bottom:12px;color:var(--err);font-size:13px">
-      <b>지금 브라우저에서는 자동 발행이 되지 않습니다.</b><br>
-      <span id="browserWarnWhy"></span> 자동 발행은 크롬에서만 동작합니다.
-      크롬으로 이 주소를 다시 열어 주세요. 글을 쓰고 복사하는 것은 지금 브라우저에서도 모두 됩니다.
+      <b>자동 발행은 이 사이트만으로는 되지 않습니다.</b><br>
+      <span id="browserWarnWhy"></span>웹사이트는 보안상 다른 사이트를 대신 조작할 수 없습니다.
+      아래 <b>복사</b>를 눌러 원고를 복사한 뒤, 해당 매체에 직접 붙여넣어 올려 주세요. 가장 빠르고 확실합니다.
     </div>
     <p class="desc">고른 매체 전체에 한 번에 나갑니다. 발행하면 발행일지에 자동으로 기록됩니다.<br>
     <b>크롬에서 해당 매체에 미리 로그인해 두세요.</b> 이 앱은 아이디와 비밀번호를 수집하지 않습니다.</p>
@@ -371,7 +377,6 @@ th{background:var(--panel);font-weight:600}
     <div class="row">
       <button class="btn big" id="btnNow">바로 발행</button>
       <button class="btn ghost big" id="btnLaterOpen">예약 발행</button>
-      <button class="btn grey" id="btnDraftOnly" title="본문만 넣어 두고 게시하지 않습니다.">글만 채워두기</button>
     </div>
     <div class="status" id="st4" style="margin-top:10px"></div>
     <div id="pubSteps"></div>
@@ -999,6 +1004,20 @@ ${pl.map((p,i)=>`${i+3}) ${p} 원고`).join('\n')}
 ${pl.length+3}) 자가 점검`;
 }
 
+/* 자동 발행은 확장이 있는 사람만. 주소에 ?pro=1 을 붙이면 켜진다. */
+const PRO=(function(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('pro')==='1'){localStorage.setItem('wb_pro','1');return true;}
+  if(q.get('pro')==='0'){localStorage.removeItem('wb_pro');return false;}
+  return localStorage.getItem('wb_pro')==='1';
+})();
+if(PRO){
+  const t=document.getElementById('tabPub'); if(t)t.classList.remove('hidden');
+  const h=document.getElementById('tabHist'); if(h)h.textContent='⑤ 발행일지';
+  const n=document.getElementById('pubHowto'); if(n)n.classList.add('hidden');
+  const r=document.getElementById('logRow'); if(r)r.classList.add('hidden');
+}
+
 /* 크롬이 아니면 발행 탭에서 미리 알려준다 */
 (function(){
   const ua=navigator.userAgent;
@@ -1228,7 +1247,7 @@ function renderPlatCards(){
      <div class="tune">
        <span>글자수</span><input type="number" class="mini" id="tl_${k}" value="${tune[k].len}" min="100" max="4000" step="50">
        <span>해시태그</span><input type="number" class="mini" id="tt_${k}" value="${tune[k].tag}" min="0" max="10">
-       <button class="btn sm" data-gen="${k}">쓰기</button>
+       <button class="btn sm" data-gen="${k}">다시 쓰기</button>
        <button class="btn grey sm" data-ed="${k}">직접 고치기</button>
        <button class="btn ghost sm" data-cp="out_${k}">복사</button>
      </div>
@@ -1343,7 +1362,6 @@ $('btnLater').onclick=e=>{const f=form();
     $('st4').textContent='요일을 하나 이상 고르세요.';$('st4').className='status err';return;}
   copy(pubPrompt('later'),null,'',e.currentTarget);showPubSteps('later');
   logAuto('예약',$('s_from').value,$('s_time').value);};
-$('btnDraftOnly').onclick=e=>{copy(pubPrompt('draft'),null,'',e.currentTarget);showPubSteps('draft');};
 
 /* ================= 저장 ================= */
 const store=()=>JSON.parse(localStorage.getItem(LS)||'{}');
@@ -1394,7 +1412,7 @@ function renderHist(){
   const h=fl==='all'?all:all.filter(r=>r.media===fl);
   $('cntH').textContent=fl==='all'?`총 ${all.length}건`:`${fl} ${h.length}건 / 전체 ${all.length}건`;
   renderStats(all);
-  if(!h.length){$('histBox').innerHTML='<p class="count" style="margin:0">아직 발행 내역이 없습니다. ④ 발행 탭에서 발행하면 여기에 쌓입니다.</p>';return;}
+  if(!h.length){$('histBox').innerHTML='<p class="count" style="margin:0">아직 기록이 없습니다. ③ 매체별 원고에서 발행일지에 기록을 누르면 여기에 쌓입니다.</p>';return;}
   $('histBox').innerHTML='<table><tr><th style="width:14%">일자</th><th style="width:12%">매체</th><th>제목</th><th style="width:12%">상태</th><th style="width:7%"></th></tr>'+
     h.map(r=>{const i=all.indexOf(r);return`<tr><td>${r.date||'-'}${r.time?'<br><span class="count">'+r.time+'</span>':''}</td>
       <td>${r.media}</td><td>${r.title||'-'}${r.url?'<br><span class="count">'+r.url+'</span>':''}</td>
@@ -1402,6 +1420,32 @@ function renderHist(){
   $('histBox').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
     const x=hist();x.splice(+b.dataset.del,1);saveH(x);renderHist();});
 }
+/* ③에서 바로 발행일지에 기록 */
+(function(){
+  const btn=document.getElementById('btnLogHere');
+  if(!btn)return;
+  btn.onclick=()=>{
+    const msg=document.getElementById('stLogHere');
+    const sel=picked('platChips');
+    if(!sel.length){msg.textContent='올릴 매체를 먼저 고르세요.';msg.style.color='var(--err)';return;}
+    const body=($('draft').textContent||'').trim();
+    const title=(body.split('\n').find(x=>x.trim())||form().topic||'제목 없음').trim().slice(0,80);
+    const d=new Date();
+    const p2=n=>String(n).padStart(2,'0');
+    const date=`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+    const time=`${p2(d.getHours())}:${p2(d.getMinutes())}`;
+    const h=hist();
+    sel.forEach(k=>{
+      const t=(document.getElementById('out_'+k)||{}).textContent||'';
+      h.push({date,time,media:PLAT[k]?PLAT[k].n:k,title,topic:form().topic||'',
+        len:t.replace(/\s/g,'').length,url:'',state:'발행',memo:''});
+    });
+    saveH(h);renderHist();
+    msg.textContent=`${sel.length}건을 발행일지에 기록했습니다.`;msg.style.color='var(--ok)';
+    setTimeout(()=>{msg.textContent='';},2500);
+  };
+})();
+
 function renderStats(all){
   if(!all.length){$('statBox').innerHTML='<p class="count" style="margin:0">발행하면 여기에 요약이 나옵니다.</p>';
     $('statLine').textContent='';return;}
