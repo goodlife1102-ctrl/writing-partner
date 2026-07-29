@@ -41,8 +41,11 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
 .card h2{font-size:14px;margin:0 0 4px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .card .desc{font-size:12.5px;color:var(--sub);margin:0 0 14px}
 .btn{padding:10px 18px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;
-  cursor:pointer;font-size:13.5px;font-weight:600;font-family:inherit}
-.btn:disabled{opacity:.45;cursor:default}
+  cursor:pointer;font-size:13.5px;font-weight:600;font-family:inherit;
+  transition:transform .07s ease, box-shadow .12s ease, filter .12s ease}
+.btn:hover:not(:disabled){filter:brightness(1.06)}
+.btn:active:not(:disabled){transform:translateY(2px) scale(.98);box-shadow:inset 0 2px 5px rgba(0,0,0,.18);filter:brightness(.94)}
+.btn:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
 .btn.ghost{background:#fff;color:var(--accent)}
 .btn.sm{padding:6px 12px;font-size:12px}
 .btn.grey{background:#fff;color:var(--sub);border-color:var(--line)}

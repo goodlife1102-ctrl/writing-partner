@@ -19,7 +19,14 @@ h2{font-size:14px;margin:0 0 4px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .spread{justify-content:space-between}
 .btn{padding:8px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;
-  cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
+  cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;
+  transition:transform .07s ease, box-shadow .12s ease, filter .12s ease}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(2px) scale(.98);box-shadow:inset 0 2px 5px rgba(0,0,0,.18);filter:brightness(.94)}
+.btn:disabled{opacity:.65;cursor:default;transform:none;box-shadow:none}
+.btn.done{background:var(--ok)!important;border-color:var(--ok)!important;color:#fff!important;
+  transform:none;box-shadow:none}
+.btn.fail{background:var(--err)!important;border-color:var(--err)!important;color:#fff!important}
 .btn.ghost{background:#fff;color:var(--accent)}
 .btn.grey{background:#fff;color:var(--sub);border-color:var(--line)}
 .btn.sm{padding:5px 10px;font-size:12px}
@@ -92,7 +99,7 @@ th{background:var(--panel);font-weight:600}
     </div>
 
     <div style="margin-bottom:14px">
-      <label>② 키 등록 <span class="count">키는 서버에만 저장되고 사용자에게 내려가지 않습니다</span></label>
+      <label>② 키 등록 <span class="count">키는 서버에만 저장되고 사용자에게 노출되지 않습니다</span></label>
       <div class="row" style="margin-bottom:8px">
         <span class="count" style="width:60px">Claude</span>
         <input type="password" id="k_claude" placeholder="새 키를 넣을 때만 입력 (sk-ant-...)" style="flex:1;min-width:200px">
@@ -124,6 +131,14 @@ th{background:var(--panel);font-weight:600}
         <span class="count">끄면 모두 프롬프트 복사 방식으로 바뀝니다. 비용이 즉시 멈춥니다.</span>
       </div>
     </div>
+
+    <div class="row" style="margin-top:16px;padding-top:14px;border-top:1px solid #e7e2d8">
+      <button class="btn grey sm" id="btnCheck">수강생 화면 점검</button>
+      <span class="count" id="liveState"></span>
+    </div>
+    <div class="note">수강생 브라우저가 서버에 물어보는 것과 똑같이 확인합니다. 여기가 초록색이면 준비가 끝난 것입니다.</div>
+
+    <p class="status" id="stPrep" style="margin-top:12px"></p>
   </div>
 
   <div class="card">
@@ -220,6 +235,7 @@ function render(){
   $('s_code').value=s.entry_code||'';$('s_open').checked=s.open==='1';
   $('k_claude').value='';$('k_gemini').value='';
   renderUsers();
+  check();
   $('recentBox').innerHTML=data.recent.length
     ? '<table><tr><th style="width:28%">이용자</th><th style="width:16%">종류</th><th style="width:24%">시각(UTC)</th><th>글자수</th></tr>'+
       data.recent.map(r=>`<tr><td>${esc(r.email)}</td><td>${esc(r.kind)}</td><td>${esc(r.at||'')}</td><td>${r.chars||0}</td></tr>`).join('')+'</table>'
@@ -258,31 +274,62 @@ function renderUsers(){
 }
 $('uSearch').oninput=()=>data&&renderUsers();
 
-async function save(extra){
+async function check(){
+  const el=$('liveState');
+  el.textContent='확인 중…';el.style.color='';
+  try{
+    const r=await fetch(SERVER+'/api/config?t='+Date.now(),{cache:'no-store'});
+    const c=await r.json();
+    const bits=[c.open?'자동 생성 열림':'자동 생성 잠김',
+                c.needCode?'참가 코드 필요':'코드 없이 입장',
+                '1인 '+c.perUserDaily+'회',
+                c.clientId?'구글 로그인 준비됨':'구글 로그인 미설정'];
+    el.textContent=bits.join(' · ');
+    el.style.color=(c.open&&c.clientId)?'var(--ok)':'var(--err)';
+  }catch(e){el.textContent='서버에 닿지 못했습니다.';el.style.color='var(--err)';}
+}
+$('btnCheck').onclick=check;
+
+function ping(btn,ok){
+  if(!btn)return;
+  const t=btn.dataset.label||btn.textContent;
+  btn.dataset.label=t;
+  btn.classList.remove('done','fail');
+  btn.classList.add(ok?'done':'fail');
+  btn.textContent=ok?'✓ 저장됨':'실패';
+  setTimeout(()=>{btn.classList.remove('done','fail');btn.textContent=t;},1400);
+}
+async function save(extra,where,btn){
+  if(btn){btn.disabled=true;btn.dataset.label=btn.dataset.label||btn.textContent;btn.textContent='저장 중…';}
   const settings={daily_total_cap:$('s_cap').value,per_user_daily:$('s_user').value,
     provider:$('s_prov').value,notice:$('s_notice').value.trim(),
     claude_model:$('m_claude').value.trim(),gemini_model:$('m_gemini').value.trim(),
     entry_code:$('s_code').value.trim(),open:$('s_open').checked?'1':'0',
     claude_key:'__keep__',gemini_key:'__keep__',...(extra||{})};
   const r=await api('/api/admin/settings',{settings});
-  $('stSave').textContent=r.ok?'저장했습니다.':(r.error||'실패했습니다.');
-  $('stSave').className=r.ok?'status ok':'status err';
+  if(btn)btn.disabled=false;
+  ping(btn,!!r.ok);
+  const box=$(where||'stSave');
+  box.textContent=r.ok?'저장했습니다.':(r.error||'실패했습니다.');
+  box.className=r.ok?'status ok':'status err';
+  if(where&&where!=='stSave'){$('stSave').textContent='';$('stSave').className='status';}
   if(r.ok)load();
 }
-$('btnSave').onclick=()=>save();
+$('btnSave').onclick=e=>save(null,null,e.currentTarget);
 document.querySelectorAll('[data-savekey]').forEach(b=>b.onclick=()=>{
   const which=b.dataset.savekey;
   const v=$(which==='claude'?'k_claude':'k_gemini').value.trim();
-  if(!v){$('stSave').textContent='키를 입력한 뒤 저장을 눌러 주세요.';$('stSave').className='status err';return;}
-  save(which==='claude'?{claude_key:v}:{gemini_key:v});});
-$('btnCode').onclick=()=>save();
-$('btnCodeNew').onclick=()=>{
+  if(!v){$('stPrep').textContent='이미 등록된 키는 그대로 있습니다. 키를 바꿀 때만 칸에 넣고 저장하세요.';$('stPrep').className='status';return;}
+  save(which==='claude'?{claude_key:v}:{gemini_key:v},'stPrep',b);});
+$('btnCode').onclick=e=>save(null,'stPrep',e.currentTarget);
+$('btnCodeNew').onclick=e=>{
+  ping(e.currentTarget,true);
   const d=new Date(),p=n=>String(n).padStart(2,'0');
   const rnd=Math.random().toString(36).slice(2,5).toUpperCase();
   $('s_code').value=`${p(d.getMonth()+1)}${p(d.getDate())}-${rnd}`;
-  $('stSave').textContent='새 코드를 만들었습니다. 코드 저장을 눌러 적용하세요.';$('stSave').className='status ok';};
-$('s_open').onchange=()=>save();
-$('s_prov').onchange=()=>save();
+  $('stPrep').textContent='새 코드를 만들었습니다. 코드 저장을 눌러 적용하세요.';$('stPrep').className='status ok';};
+$('s_open').onchange=()=>save(null,'stPrep');
+$('s_prov').onchange=()=>save(null,'stPrep');
 $('btnCsv').onclick=()=>{
   if(!data||!data.users.length)return alert('내려받을 기록이 없습니다.');
   const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
