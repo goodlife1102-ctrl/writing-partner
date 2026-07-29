@@ -93,7 +93,7 @@ th{background:var(--panel);font-weight:600}
 </head>
 <body>
 <div class="wrap">
-<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-10</small></h1>
+<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-11</small></h1>
 
 <div class="tabs">
   <button class="tab on" data-p="p1">① 쓰기</button>
@@ -1016,6 +1016,15 @@ if(PRO){
   const h=document.getElementById('tabHist'); if(h)h.textContent='⑤ 발행일지';
   const n=document.getElementById('pubHowto'); if(n)n.classList.add('hidden');
   const r=document.getElementById('logRow'); if(r)r.classList.add('hidden');
+  const h1=document.querySelector('h1');
+  if(h1){
+    const b=document.createElement('span');
+    b.textContent='작가용';
+    b.style.cssText='display:inline-block;margin-left:8px;padding:3px 9px;border-radius:99px;'+
+      'background:var(--accent);color:#fff;font-size:11.5px;font-weight:700;vertical-align:middle;letter-spacing:0';
+    h1.appendChild(b);
+  }
+  document.title='[작가용] '+document.title;
 }
 
 /* 크롬이 아니면 발행 탭에서 미리 알려준다 */
