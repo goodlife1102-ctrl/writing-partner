@@ -92,17 +92,31 @@ th{background:var(--panel);font-weight:600}
     </div>
 
     <div style="margin-bottom:14px">
-      <label>② 오늘 쓸 키 <span class="count">사용자에게 내려가지 않습니다</span></label>
+      <label>② 키 등록 <span class="count">키는 서버에만 저장되고 사용자에게 내려가지 않습니다</span></label>
+      <div class="row" style="margin-bottom:8px">
+        <span class="count" style="width:60px">Claude</span>
+        <input type="password" id="k_claude" placeholder="새 키를 넣을 때만 입력 (sk-ant-...)" style="flex:1;min-width:200px">
+        <button class="btn sm" data-savekey="claude">저장</button>
+        <span class="count" id="hintClaude"></span>
+      </div>
       <div class="row">
-        <select id="s_prov" style="width:120px"><option value="claude">Claude</option><option value="gemini">Gemini</option></select>
-        <input type="password" id="s_key" placeholder="새 키를 넣을 때만 입력" style="flex:1;min-width:200px">
-        <button class="btn sm" id="btnKey">키 저장</button>
-        <span class="count" id="keyHint"></span>
+        <span class="count" style="width:60px">Gemini</span>
+        <input type="password" id="k_gemini" placeholder="새 키를 넣을 때만 입력" style="flex:1;min-width:200px">
+        <button class="btn sm" data-savekey="gemini">저장</button>
+        <span class="count" id="hintGemini"></span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>③ 지금 쓸 AI <span class="count">고르는 즉시 바뀝니다</span></label>
+      <div class="row">
+        <select id="s_prov" style="width:140px"><option value="claude">Claude</option><option value="gemini">Gemini</option></select>
+        <span class="count" id="provState"></span>
       </div>
     </div>
 
     <div>
-      <label>③ 자동 생성</label>
+      <label>④ 자동 생성</label>
       <div class="row">
         <label style="display:flex;align-items:center;gap:6px;margin:0;font-weight:400">
           <input type="checkbox" id="s_open" style="width:auto"> 열기
@@ -117,7 +131,8 @@ th{background:var(--panel);font-weight:600}
     <div class="grid2">
       <div><label>오늘 전체 상한 (건)</label><input type="number" id="s_cap" min="0" style="width:100%"></div>
       <div><label>1인당 하루 횟수</label><input type="number" id="s_user" min="0" style="width:100%"></div>
-      <div><label>모델 이름 <span class="count">비우면 기본값</span></label><input type="text" id="s_model" style="width:100%"></div>
+      <div><label>Claude 모델 <span class="count">비우면 기본값</span></label><input type="text" id="m_claude" style="width:100%" placeholder="claude-sonnet-5"></div>
+      <div><label>Gemini 모델 <span class="count">비우면 기본값</span></label><input type="text" id="m_gemini" style="width:100%" placeholder="gemini-2.5-flash"></div>
       <div><label>사이트 공지 <span class="count">비우면 표시 안 함</span></label>
         <input type="text" id="s_notice" style="width:100%" placeholder="예: 오늘 강의는 오후 5시에 시작합니다"></div>
     </div>
@@ -195,10 +210,15 @@ function render(){
   $('kState').textContent=open?'열림':(data.hasKey?'잠금':'키 없음');
   $('kState').style.color=open?'var(--ok)':'var(--err)';
   $('kBar').style.width=Math.min(100,(data.todayTotal/Math.max(1,Number(s.daily_total_cap)))*100)+'%';
-  $('keyHint').textContent=data.hasKey?`등록됨 ${data.keyHint}${data.keyFromEnv?' (서버 설정값)':''}`:'아직 없음';
+  $('hintClaude').textContent=data.claudeSet?`등록됨 ${data.claudeHint}`:'아직 없음';
+  $('hintGemini').textContent=data.geminiSet?`등록됨 ${data.geminiHint}`:'아직 없음';
+  $('provState').textContent=data.hasKey?'키 등록됨 · 바로 사용 가능':'이 AI의 키가 아직 없습니다';
+  $('provState').style.color=data.hasKey?'var(--ok)':'var(--err)';
   $('s_cap').value=s.daily_total_cap;$('s_user').value=s.per_user_daily;
-  $('s_prov').value=s.provider;$('s_model').value=s.model;$('s_notice').value=s.notice;
-  $('s_code').value=s.entry_code||'';$('s_open').checked=s.open==='1';$('s_key').value='';
+  $('s_prov').value=s.provider;$('s_notice').value=s.notice;
+  $('m_claude').value=s.claude_model||'';$('m_gemini').value=s.gemini_model||'';
+  $('s_code').value=s.entry_code||'';$('s_open').checked=s.open==='1';
+  $('k_claude').value='';$('k_gemini').value='';
   renderUsers();
   $('recentBox').innerHTML=data.recent.length
     ? '<table><tr><th style="width:28%">이용자</th><th style="width:16%">종류</th><th style="width:24%">시각(UTC)</th><th>글자수</th></tr>'+
@@ -240,23 +260,29 @@ $('uSearch').oninput=()=>data&&renderUsers();
 
 async function save(extra){
   const settings={daily_total_cap:$('s_cap').value,per_user_daily:$('s_user').value,
-    provider:$('s_prov').value,model:$('s_model').value.trim(),notice:$('s_notice').value.trim(),
-    entry_code:$('s_code').value.trim(),open:$('s_open').checked?'1':'0',...(extra||{})};
+    provider:$('s_prov').value,notice:$('s_notice').value.trim(),
+    claude_model:$('m_claude').value.trim(),gemini_model:$('m_gemini').value.trim(),
+    entry_code:$('s_code').value.trim(),open:$('s_open').checked?'1':'0',
+    claude_key:'__keep__',gemini_key:'__keep__',...(extra||{})};
   const r=await api('/api/admin/settings',{settings});
   $('stSave').textContent=r.ok?'저장했습니다.':(r.error||'실패했습니다.');
   $('stSave').className=r.ok?'status ok':'status err';
   if(r.ok)load();
 }
 $('btnSave').onclick=()=>save();
-$('btnKey').onclick=()=>{const v=$('s_key').value.trim();
-  save(v?{ai_key:v}:{ai_key:'__keep__'});};
-$('btnCode').onclick=()=>save({ai_key:'__keep__'});
+document.querySelectorAll('[data-savekey]').forEach(b=>b.onclick=()=>{
+  const which=b.dataset.savekey;
+  const v=$(which==='claude'?'k_claude':'k_gemini').value.trim();
+  if(!v){$('stSave').textContent='키를 입력한 뒤 저장을 눌러 주세요.';$('stSave').className='status err';return;}
+  save(which==='claude'?{claude_key:v}:{gemini_key:v});});
+$('btnCode').onclick=()=>save();
 $('btnCodeNew').onclick=()=>{
   const d=new Date(),p=n=>String(n).padStart(2,'0');
   const rnd=Math.random().toString(36).slice(2,5).toUpperCase();
   $('s_code').value=`${p(d.getMonth()+1)}${p(d.getDate())}-${rnd}`;
   $('stSave').textContent='새 코드를 만들었습니다. 코드 저장을 눌러 적용하세요.';$('stSave').className='status ok';};
-$('s_open').onchange=()=>save({ai_key:'__keep__'});
+$('s_open').onchange=()=>save();
+$('s_prov').onchange=()=>save();
 $('btnCsv').onclick=()=>{
   if(!data||!data.users.length)return alert('내려받을 기록이 없습니다.');
   const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
