@@ -93,7 +93,7 @@ th{background:var(--panel);font-weight:600}
 </head>
 <body>
 <div class="wrap">
-<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-4</small></h1>
+<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-5</small></h1>
 
 <div class="tabs">
   <button class="tab on" data-p="p1">① 쓰기</button>
@@ -793,6 +793,8 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   if(t.dataset.p==='p4')echoPub();
 });
 function goStep(n){
+  const max=document.querySelectorAll('.wstep').length-1;
+  n=Math.max(0,Math.min(max,n));
   document.querySelectorAll('.wstep').forEach(w=>w.classList.toggle('on',+w.dataset.s===n));
   document.querySelectorAll('.stp').forEach(s=>{const i=+s.dataset.s;
     s.classList.toggle('on',i===n);s.classList.toggle('done',i<n);});
@@ -884,9 +886,9 @@ function form(){
     plat:picked('platChips')};
 }
 function validate(f){
-  if(!f.topic)return {msg:'주제를 아직 안 적으셨습니다. 2단계로 옮겨 드렸습니다.',step:2,focus:'f_topic'};
-  if(!f.ref)return {msg:'참고자료나 최신 뉴스를 한 줄이라도 넣어 주세요. 2단계로 옮겨 드렸습니다.',step:2,focus:'f_ref'};
-  if(!f.reader)return {msg:'대상 독자를 정해 주세요. 4단계로 옮겨 드렸습니다.',step:4,focus:null};
+  if(!f.topic)return {msg:'주제를 아직 안 적으셨습니다. 2단계로 옮겨 드렸습니다.',step:1,focus:'f_topic'};
+  if(!f.ref)return {msg:'참고자료나 최신 뉴스를 한 줄이라도 넣어 주세요. 2단계로 옮겨 드렸습니다.',step:1,focus:'f_ref'};
+  if(!f.reader)return {msg:'대상 독자를 정해 주세요. 4단계로 옮겨 드렸습니다.',step:3,focus:null};
   return null;
 }
 function blockAt(v,el){
@@ -1055,11 +1057,12 @@ async function make(extra){
     $('st2').textContent='실패: '+(e&&e.message||e);$('st2').className='status err';}
 }
 $('btnGo').onclick=()=>{
+  $('st1').textContent='확인하는 중…';$('st1').className='status';
   const v=validate(form());
   if(v){blockAt(v,'st1');return;}
   if(SERVER&&!idToken){
     $('st1').textContent='먼저 맨 위에서 참가 코드를 넣고 구글 계정으로 들어와 주세요.';
-    $('st1').className='status err';goStep(1);return;}
+    $('st1').className='status err';goStep(0);return;}
   gotab('p2');window.scrollTo({top:0,behavior:'smooth'});make();};
 $('rw_len').oninput=e=>$('rwLenLabel').textContent=e.target.value;
 $('btnRewriteOpen').onclick=()=>{
