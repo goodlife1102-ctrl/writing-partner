@@ -93,7 +93,7 @@ th{background:var(--panel);font-weight:600}
 </head>
 <body>
 <div class="wrap">
-<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-3</small></h1>
+<h1>스피치라이터의 5분 완성 글쓰기 <small>(빈칸만 채우면 매체별 초안 끝)</small> <small style="opacity:.5">v0729-4</small></h1>
 
 <div class="tabs">
   <button class="tab on" data-p="p1">① 쓰기</button>
@@ -112,8 +112,7 @@ th{background:var(--panel);font-weight:600}
       <h2 style="margin:0">시작하기</h2>
       <span class="count" id="meState"></span>
     </div>
-    <p class="desc" style="margin:6px 0 12px">강의에서 받은 참가 코드를 넣고 구글 계정으로 들어오시면 됩니다.
-    API 키도 결제도 필요 없습니다. 저장되는 것은 이메일과 이름, 그리고 몇 번 쓰셨는지뿐입니다.</p>
+    <p class="desc" style="margin:6px 0 12px">참가 코드를 넣고 구글 계정으로 들어오세요.</p>
     <div id="enterRow">
       <div class="field hidden" id="codeField" style="max-width:280px">
         <label>참가 코드</label>
@@ -350,8 +349,14 @@ th{background:var(--panel);font-weight:600}
 <div class="page" id="p4">
   <div class="card">
     <h2>발행하기</h2>
+    <div id="browserWarn" class="hidden" style="border:1px solid var(--err);background:#fdf3f3;
+      border-radius:9px;padding:11px 13px;margin-bottom:12px;color:var(--err);font-size:13px">
+      <b>지금 브라우저에서는 자동 발행이 되지 않습니다.</b><br>
+      <span id="browserWarnWhy"></span> 자동 발행은 크롬에서만 동작합니다.
+      크롬으로 이 주소를 다시 열어 주세요. 글을 쓰고 복사하는 것은 지금 브라우저에서도 모두 됩니다.
+    </div>
     <p class="desc">고른 매체 전체에 한 번에 나갑니다. 발행하면 발행일지에 자동으로 기록됩니다.<br>
-    <b>크롬에서 해당 매체에 미리 로그인해 두세요.</b> 크롬에서만 동작합니다. 엣지, 사파리, 파이어폭스에서는 자동 발행이 되지 않습니다. 이 앱은 아이디와 비밀번호를 수집하지 않습니다.</p>
+    <b>크롬에서 해당 매체에 미리 로그인해 두세요.</b> 이 앱은 아이디와 비밀번호를 수집하지 않습니다.</p>
     <div class="row" style="margin-bottom:12px" id="platEcho"></div>
     <div class="row">
       <button class="btn big" id="btnNow">바로 발행</button>
@@ -752,10 +757,18 @@ async function callAI(prompt,kind){
   if(inCowork()||!SERVER)return;
   $('loginCard').classList.remove('hidden');
   (async()=>{
-    let cfg={};
-    try{cfg=await (await fetch(SERVER+'/api/config')).json();}
-    catch(e){$('stLogin').textContent='서버에 닿지 못했습니다. 잠시 뒤 다시 열어 주세요.';
+    let cfg=null;
+    for(let i=0;i<4;i++){
+      try{cfg=await (await fetch(SERVER+'/api/config?t='+Date.now(),{cache:'no-store'})).json();break;}
+      catch(e){
+        $('stLogin').textContent='서버를 깨우는 중입니다… ('+(i+1)+'/4)';
+        $('stLogin').className='status';
+        await new Promise(r=>setTimeout(r,900*(i+1)));}
+    }
+    if(!cfg){
+      $('stLogin').innerHTML='서버에 닿지 못했습니다. <b>새로고침</b>을 한 번 눌러 주세요. 그래도 안 되면 관리자에게 알려 주세요.';
       $('stLogin').className='status err';return;}
+    $('stLogin').textContent='';$('stLogin').className='status';
     if(cfg.notice){$('noticeCard').classList.remove('hidden');$('noticeText').textContent=cfg.notice;}
     if(cfg.needCode){$('codeField').classList.remove('hidden');$('f_code').value=entryCode;}
     if(!cfg.clientId){$('stLogin').textContent='로그인 설정이 아직 준비되지 않았습니다. 관리자에게 문의해 주세요.';
@@ -950,6 +963,21 @@ function full(f){
 ${pl.map((p,i)=>`${i+3}) ${p} 원고`).join('\n')}
 ${pl.length+3}) 자가 점검`;
 }
+
+/* 크롬이 아니면 발행 탭에서 미리 알려준다 */
+(function(){
+  const ua=navigator.userAgent;
+  const edge=/Edg\//.test(ua), opera=/OPR\//.test(ua), ff=/Firefox\//.test(ua);
+  const safari=/Safari\//.test(ua)&&!/Chrome\//.test(ua);
+  const chrome=/Chrome\//.test(ua)&&!edge&&!opera;
+  if(chrome)return;
+  const box=document.getElementById('browserWarn');
+  if(!box)return;
+  document.getElementById('browserWarnWhy').textContent=
+    edge?'지금 엣지로 보고 계십니다.':opera?'지금 오페라로 보고 계십니다.':
+    ff?'지금 파이어폭스로 보고 계십니다.':safari?'지금 사파리로 보고 계십니다.':'';
+  box.classList.remove('hidden');
+})();
 
 /* 조용히 멈추는 일이 없도록 */
 window.addEventListener('error',function(){
